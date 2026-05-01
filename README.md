@@ -27,7 +27,12 @@ pip install "fastapi[standard]"
 pip install requests
 
 ### Start Server
+Dont forget to activate .venv for this console
 ./start_server.sh
+
+### Start Console Client
+Dont forget to activate .venv for this console
+./start_client.sh
 
 ### Deactivate .venv
 deactivate
