@@ -24,6 +24,7 @@ You can check the python3 version again to confirm the interpreter from .venv is
 ### Install required packages into .venv
 pip install sqlmodel
 pip install "fastapi[standard]"
+pip install requests
 
 ### Start Server
 ./start_server.sh
