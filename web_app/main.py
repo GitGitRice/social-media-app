@@ -2,10 +2,10 @@ from fastapi import FastAPI, Depends, HTTPException
 from contextlib import asynccontextmanager
 from sqlmodel import SQLModel, Session
 
-from app.database import get_session, engine
+from web_app.database import get_session, engine
 
-from app.models import UserCreate, UserCreateError, UserRead, User
-from app.crud import add_user_to_db, get_users_from_db
+from web_app.models import UserCreate, UserCreateError, UserRead, User
+from web_app.crud import add_user_to_db, get_users_from_db
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

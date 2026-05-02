@@ -1,5 +1,5 @@
 import requests
-from app.models import UserCreate, UserRead
+from web_app.models import UserCreate, UserRead
 
 BASE_URL = "http://127.0.0.1:8000/api"
 

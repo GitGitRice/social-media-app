@@ -1,4 +1,4 @@
-from app.models import User, UserCreate, UserCreateError
+from web_app.models import User, UserCreate, UserCreateError
 from sqlmodel import Session, select
 from pydantic import ValidationError
 from sqlalchemy.exc import IntegrityError

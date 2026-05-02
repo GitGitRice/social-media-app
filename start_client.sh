@@ -1,1 +1,1 @@
-python3 -m console.client
+python3 -m console_app.client

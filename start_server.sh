@@ -1,1 +1,1 @@
-fastapi dev app/main.py
+fastapi dev web_app/main.py
