@@ -16,8 +16,12 @@ This is the architecture of the team project Social Media App.
 ## Console App
 ### Technology
 - requests
-- imports models from web_app
+- imports Pydantic models from web_app
+- rich
+- questionary
 ### Modules
 - client
 - ui
 - api
+## Virtual Environment
+venv with folder .venv is used to install packages and run both apps. They share the same .venv folder.
