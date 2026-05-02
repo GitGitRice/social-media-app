@@ -7,21 +7,24 @@ This is the specification of the team project Social Media App.
 ### Logout
 - logout could be automatic when closing the console app. This would require a login after each console app start.
 - Alternatively, login data (not the password!) can be stored on disc in console app. This means that after console app start, user is logged in 
-### Unregister User
 ### View Own User Profile
 ### View List of Users
 ### View Other's User Profile
 ### Create Post
 ### View Inbox
 ### View Posts
-### Create Comment on Post
 ### Like/Unlike Post
+### Create Comment on Post
+### Like/Unlike Comment
 ### Follow User
 ### Unfollow User
+### Edit Own User Profile
 ### Delete Post
 ### Delete Comment
+### Unregister User
 ## Non-functional Requirements
 ### Deploy Server on Amazon EC2
 - should integrate with GitHub to obtain the latest code
+- Proposal: Two EC2 instances, with access for each team member
 ### Deployable Client on S3
 - may be too much effort, as ideally we would create Windows .exe and Mac .app just for the demo.
