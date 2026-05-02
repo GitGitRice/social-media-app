@@ -27,6 +27,7 @@ app = FastAPI(
 
 @app.post("/api/users", response_model=UserRead)
 def add_user(
+    *,
     user: UserCreate, 
     session: Session = Depends(get_session)) -> UserRead:
 
@@ -39,7 +40,7 @@ def add_user(
     return UserRead.model_validate(result)
 
 @app.get("/api/users", response_model=list[UserRead])
-def get_users(session: Session = Depends(get_session)) -> list[UserRead]:
+def get_users(*, session: Session = Depends(get_session)) -> list[UserRead]:
     users = get_users_from_db(session)
     return [UserRead.model_validate(user) for user in users]
 
