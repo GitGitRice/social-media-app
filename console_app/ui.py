@@ -9,8 +9,7 @@ from console_app.client_api import add_user, get_users
 console = Console()
 
 def add_user_ui() -> None:
-
-    # Display add user form and collect answers
+    """Display add user form and collect answers"""
     answers = questionary.form(
         user_name = questionary.text(
             "User Name (Mandatory)", 
@@ -53,7 +52,7 @@ def show_user_ui(user: UserRead) -> None:
     questionary.press_any_key_to_continue().ask()
 
 def get_users_ui() -> None:
-    
+    """Shows list of all users and provides selection to user details"""
     users = get_users()
     if not users:
         console.print("\n[yellow]No Users found in the database.[/yellow]\n")
@@ -95,7 +94,7 @@ def get_users_ui() -> None:
     show_user_ui(selected_user)
 
 def main_menu_ui() -> None:
-    
+    """Displays the main menu of the console app"""
     while True:
         answer = questionary.select(
             message="Main Menu",

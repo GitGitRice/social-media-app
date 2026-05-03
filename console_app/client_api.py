@@ -24,6 +24,7 @@ def get_users() -> list[UserRead]:
     try:
         response = requests.get(f"{BASE_URL}/users")
         if response.status_code == 200:
+            # validate JSON response into UserRead object
             return [UserRead.model_validate(u) for u in response.json()]
         return []
     except requests.exceptions.ConnectionError:
