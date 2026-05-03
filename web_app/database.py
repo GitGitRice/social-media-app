@@ -17,8 +17,7 @@ engine = create_engine(
 # 3. Dependency to be used in FastAPI routes
 def get_session():
     """
-    Provides a database session that automatically closes 
-    after the request is finished.
+    Provides a database session that automatically closes after the request is finished.
     """
     with Session(engine) as session:
         yield session
