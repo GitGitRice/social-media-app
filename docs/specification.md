@@ -1,6 +1,6 @@
 # Specification - Social Media App
 ## Overview
-This is the specification of the team project Social Media App.
+This is the specification of the team project Social Media App. The functionality is ordered by approximate order of implementation (to be reviewed).
 ## Functionality
 ### Register User
 ### Login
@@ -15,9 +15,13 @@ This is the specification of the team project Social Media App.
 ### View Posts
 ### Like/Unlike Post
 ### Create Comment on Post
-### Like/Unlike Comment
 ### Follow User
+### Email Notifications
+- New Follower
+- New Post from Follower
+- ...
 ### Unfollow User
+### Like/Unlike Comment
 ### Edit Own User Profile
 ### Delete Post
 ### Delete Comment
