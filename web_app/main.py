@@ -4,7 +4,7 @@ from sqlmodel import SQLModel, Session
 
 from web_app.database import get_session, engine
 
-from web_app.models import UserCreate, UserCreateError, UserRead, User
+from web_app.models import UserCreate, ModelError, UserRead, User
 from web_app.crud import add_user_to_db, get_users_from_db
 
 @asynccontextmanager
@@ -32,9 +32,9 @@ def add_user(
     session: Session = Depends(get_session)) -> UserRead:
 
     result = add_user_to_db(user, session)
-    if isinstance(result, UserCreateError):
-        if result == UserCreateError.ALREADY_EXISTS:
-            raise HTTPException(status_code=400, detail="Username already taken")
+    if isinstance(result, ModelError):
+        if result == ModelError.USER_NAME_ALREADY_EXISTS:
+            raise HTTPException(status_code=400, detail=ModelError.USER_NAME_ALREADY_EXISTS)
         else:
             raise HTTPException(status_code=500, detail="Internal server error")
     return UserRead.model_validate(result)

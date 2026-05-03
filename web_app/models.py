@@ -34,7 +34,7 @@ class UserPatch (SQLModel):
     password: str | None = None
 
 
-class UserCreateError(str, Enum):
+class ModelError(str, Enum):
     VALIDATION_ERROR = "VALIDATION_ERROR"
-    ALREADY_EXISTS = "ALREADY_EXISTS"
+    USER_NAME_ALREADY_EXISTS = "USER_NAME_ALREADY_EXISTS"
     DATABASE_ERROR = "DATABASE_ERROR"
