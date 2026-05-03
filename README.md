@@ -96,8 +96,7 @@ If you want to understand how things work under the hood:
 
 - `web_app/`: The heart of the backend. Contains models, database logic, and API endpoints.
 - `console_app/`: The terminal-based user interface.
-- `docs/`: Technical specifications and architecture diagrams.
-- `assets/`: Helpful images and diagrams.
+- `docs/`: Technical documentation ([Architecture](docs/architecture.md), [Specification](docs/specification.md), [Tasks](docs/tasks.md)).
 
 ---
 
