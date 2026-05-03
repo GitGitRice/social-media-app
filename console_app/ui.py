@@ -4,7 +4,7 @@ from rich.console import Console
 from rich.panel import Panel
 
 from web_app.models import UserCreate, UserRead
-from console_app.api import add_user, get_users
+from console_app.client_api import add_user, get_users
 
 console = Console()
 
