@@ -1,6 +1,8 @@
 # Architecture - Social Media App
 ## Overview
 This is the architecture of the team project Social Media App.
+
+![Module View](../assets/social-media-app-architecture.drawio.png)
 ## Web App
 ### Technology
 - FastAPI
@@ -22,6 +24,6 @@ This is the architecture of the team project Social Media App.
 ### Modules
 - client
 - ui
-- api
+- client_api
 ## Virtual Environment
 venv with folder .venv is used to install packages and run both apps. They share the same .venv folder.
