@@ -1,49 +1,110 @@
 # Social Media App
 
-## Development Environment
+Welcome to the **Social Media App**! This project is designed as an introductory team project to learn the fundamentals of full-stack development, API design, and database management.
 
-### Overview to venv
-Using venv as Virtual environment to install required packages in this environment and keep the global Mac environment clean.
+---
 
-### Create Virtual Environment .venv
-Note: If you are going to use the ./start_server.sh, creating .venv manually is not required. It is done automatically by the script.
+## Overview
 
-Manual Process:
-Execute python3 -m venv .venv
+This application consists of two main parts:
+1.  **Backend API**: Built with **FastAPI**, it handles data storage, user authentication, and business logic.
+2.  **Console Client**: A interactive CLI application built with **Questionary** and **Rich** that lets you interact with the social network right from your terminal.
 
-### Activate .venv
-Note: If you are going to use the ./start_server.sh, activating .venv manually is not required. It is done automatically by the script.
+---
 
-Manual Process:
-Execute source .venv/bin/activate
+## Core Features
 
-You can use "which python" to confirm the interpreter from .venv is active.
-With "python --version" you can confirm the python version.
+- **User Management**: Register, Login, and manage your profile.
+- **Social Interaction**: Follow other users, see their posts, and engage.
+- **Content Creation**: Create posts, leave comments, and like what you see!
+- **Notifications**: Stay updated with email notifications for new followers and interactions.
 
-### Install required packages into .venv
+---
 
-Note: If you are going to use the ./start_server.sh, installing the packages manually is not required. It is done automatically by the script.
+## The Tech Stack (Why we chose these)
 
-Manual Process:
-Either single installations of the packages.
-- pip install sqlmodel
-- pip install "fastapi[standard]"
-- pip install requests
-- pip install questionary
-- pip install rich
+- **Python 3.13+**: The core language. Clean, readable, and powerful.
+- **FastAPI**: A modern, high-performance web framework for building APIs with Python. It's great because it automatically generates documentation!
+- **SQLModel (SQLAlchemy + Pydantic)**: Makes working with databases feel like writing regular Python code.
+- **SQLite**: A lightweight, file-based database—perfect for getting started without setting up a heavy server.
+- **Rich & Questionary**: Used in the Console Client to make the terminal look beautiful and interactive.
 
-Alternatively, you can install pip install -r requirements.txt which installs all missing packages.
+---
 
-### Start Server
+## Getting Started
+
+We've made it easy to get up and running! Follow these steps:
+
+### 1. The Quick Start (Recommended)
+
+The easiest way to start is using our helper scripts. They automatically handle setting up your virtual environment and installing everything you need.
+
+**Step 1: Start the Server**
+Open a terminal and run:
+```bash
 ./start_server.sh
+```
+*Wait for the message saying the server is running (usually at http://127.0.0.1:8000).*
 
-Alternatively, you can run "fastapi dev web_app/main.py" after having activated the .venv environment and installed the dependencies.
-
-### Start Console Client
-Dont forget to activate .venv for this console
+**Step 2: Start the Client**
+Open a **new** terminal window and run:
+```bash
 ./start_client.sh
+```
+*Now you can start interacting with the app!*
 
-Alternatively, you can run "python3 -m console_app.client" after having activated the .venv environment and installed the dependencies.
+---
 
-### Deactivate .venv
-deactivate
+### 2. Manual Setup (For the Curious)
+
+If you want to understand how things work under the hood:
+
+1.  **Create a Virtual Environment**:
+    ```bash
+    python3 -m venv .venv
+    ```
+    *Why? This keeps your project's dependencies isolated from the rest of your computer.*
+
+2.  **Activate it**:
+    ```bash
+    source .venv/bin/activate
+    ```
+
+3.  **Install Dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
+    These are the dependencies, which are key to the project:
+    - pip install sqlmodel
+    - pip install "fastapi[standard]"
+    - pip install requests
+    - pip install questionary
+    - pip install rich
+
+4.  **Run the Server manually**:
+    ```bash
+    fastapi dev web_app/main.py
+    ```
+5.  **Run the Client manually**:
+    ```bash
+    python3 -m console_app.client
+    ```
+
+---
+
+## Project Structure
+
+- `web_app/`: The heart of the backend. Contains models, database logic, and API endpoints.
+- `console_app/`: The terminal-based user interface.
+- `docs/`: Technical specifications and architecture diagrams.
+- `assets/`: Helpful images and diagrams.
+
+---
+
+## Tips
+
+- **Explore the API**: Once the server is running, visit [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs) to see the interactive API documentation. You can test endpoints directly from your browser!
+- **Check the Database**: The `database.db` file is a SQLite database. You can use tools like [DB Browser for SQLite](https://sqlitebrowser.org/) to see how your data is stored.
+- **Read the Code**: Start with `web_app/main.py` and `console_app/client.py` to see how the two parts talk to each other.
+
+Happy Coding, Licht und Frieden!
