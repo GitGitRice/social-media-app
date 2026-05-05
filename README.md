@@ -28,6 +28,7 @@ This application consists of two main parts:
 - **SQLModel (SQLAlchemy + Pydantic)**: Makes working with databases feel like writing regular Python code.
 - **SQLite**: A lightweight, file-based database—perfect for getting started without setting up a heavy server.
 - **Rich & Questionary**: Used in the Console Client to make the terminal look beautiful and interactive.
+- **Requests**: To send HTTP requests from Console Client to Server.
 
 ---
 
