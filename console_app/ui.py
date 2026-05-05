@@ -3,8 +3,8 @@ from rich.table import Table
 from rich.console import Console
 from rich.panel import Panel
 
-from web_app.models import UserCreate, UserRead
-from console_app.client_api import add_user, get_users
+from web_app.models import UserCreate, UserRead, PostCreate
+from console_app.client_api import add_user, get_users, add_post, get_posts, get_user_posts
 
 console = Console()
 
@@ -49,7 +49,19 @@ def show_user_ui(user: UserRead) -> None:
     
     console.print(Panel(detail_content, title=f"User Profile: {user.user_name}", expand=False))
     
-    questionary.press_any_key_to_continue().ask()
+    action = questionary.select(
+            "Aktionen:",
+            choices=["Posts ansehen", "Etwas posten", "Zurück"]
+        ).ask()
+
+    if action == "Posts ansehen":
+        user_posts = get_user_posts(user.id)
+        for p in user_posts:
+            console.print(f"- {p.content} ([dim]{p.created_at.strftime('%H:%M')}[/dim])")
+        questionary.press_any_key_to_continue().ask()
+    elif action == "Etwas posten":
+        add_post_ui(user.id)
+        
 
 def get_users_ui() -> None:
     """Shows list of all users and provides selection to user details"""
@@ -103,6 +115,7 @@ def main_menu_ui() -> None:
             choices=[
                 "Add User",
                 "Display Users",
+                "Globaler Feed",
                 "Exit"
             ]).ask()
         match answer:
@@ -110,9 +123,37 @@ def main_menu_ui() -> None:
                 add_user_ui()
             case "Display Users":
                 get_users_ui()
+            case "Globaler Feed":
+                show_feed_ui()
             case "Exit":
                 break
             case _:
                 # can only trigger, if programmer used the wrong strings in case statement
                 print("Invalid Selection") 
                 continue
+
+
+def show_feed_ui() -> None:
+    """Zeigt die neuesten Posts aller Nutzer an."""
+    posts = get_posts()
+    if not posts:
+        console.print("[yellow]Der Feed ist noch leer.[/yellow]")
+    else:
+        for post in posts:
+            # Hier könnte man noch den User-Namen abfragen, 
+            # aktuell haben wir im PostRead nur die author_id
+            console.print(Panel(post.content, title=f"Post ID: {post.id} (User {post.author_id})"))
+    
+    questionary.press_any_key_to_continue().ask()
+
+
+def add_post_ui(user_id: int) -> None:
+    """Ermöglicht es dem aktuell 'eingeloggten' User, etwas zu posten."""
+    content = questionary.text("Was möchtest du teilen?").ask()
+    if content:
+        post_data = PostCreate(content=content, author_id=user_id)
+        if add_post(post_data, user_id):
+            console.print("[green]Post erfolgreich veröffentlicht![/green]")
+        else:
+            console.print("[red]Fehler beim Posten.[/red]")
+
