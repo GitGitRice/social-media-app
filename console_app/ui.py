@@ -4,7 +4,7 @@ from rich.console import Console
 from rich.panel import Panel
 
 from web_app.models import UserCreate, UserRead, PostCreate
-from console_app.client_api import add_user, get_users, add_post, get_posts, get_user_posts
+from console_app.client_api import add_user, get_users, add_post, get_posts, get_user_posts, remove_post
 
 console = Console()
 
@@ -51,7 +51,7 @@ def show_user_ui(user: UserRead) -> None:
     
     action = questionary.select(
             "Aktionen:",
-            choices=["Posts ansehen", "Etwas posten", "Zurück"]
+            choices=["Posts ansehen", "Etwas posten", "Post löschen", "Zurück"]
         ).ask()
 
     if action == "Posts ansehen":
@@ -61,6 +61,8 @@ def show_user_ui(user: UserRead) -> None:
         questionary.press_any_key_to_continue().ask()
     elif action == "Etwas posten":
         add_post_ui(user.id)
+    elif action == "Post löschen":
+        delete_post_ui()
         
 
 def get_users_ui() -> None:
@@ -104,6 +106,7 @@ def get_users_ui() -> None:
     # Find the specific user object that matches the selection
     selected_user = next(u for u in users if u.user_name == selection)
     show_user_ui(selected_user)
+
 
 def main_menu_ui() -> None:
     """Displays the main menu of the console app"""
@@ -157,3 +160,13 @@ def add_post_ui(user_id: int) -> None:
         else:
             console.print("[red]Fehler beim Posten.[/red]")
 
+
+def delete_post_ui() -> None:
+    post_id = questionary.text("ID des zu löschenden Posts:").ask()
+    if post_id and post_id.isdigit():
+        confirm = questionary.confirm(f"Post {post_id} wirklich löschen?").ask()
+        if confirm:
+            if remove_post(int(post_id)):
+                console.print("[green]Post wurde gelöscht.[/green]")
+            else:
+                console.print("[red]Fehler: Post konnte nicht gelöscht werden.[/red]")
