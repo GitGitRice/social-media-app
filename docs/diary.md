@@ -9,3 +9,5 @@
 - Created pull request (Daniel)
   - server-side authentication
   - Extracted authentication and url parameters into .env file
+- Created pull request (Steven)
+- implemented posts including CRUD functionality and routing
