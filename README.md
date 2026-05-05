@@ -83,6 +83,8 @@ If you want to understand how things work under the hood:
     pip install rich
     pip install bcrypt
     pip install "python-jose[cryptography]"
+    pip install python-dotenv
+
     ```
 
 4.  **Run the Server manually**:

@@ -7,10 +7,19 @@ from sqlmodel import Session
 from web_app.crud import get_user_by_id
 from web_app.database import get_session
 from web_app.models import User, ModelError
+import os
+from dotenv import load_dotenv
 
-SECRET_KEY = "social-media-app" 
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 120
+# Load the variables from .env into the system environment
+load_dotenv()
+
+# read system environment variables
+SECRET_KEY = os.getenv("SECRET_KEY", "fallback-secret-for-local-dev") 
+ALGORITHM = os.getenv("ALGORITHM", "HS256")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "120"))
+
+# Tell FastAPI on which end point to look for the token
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/token")
 
 def get_password_hash(password: str) -> str:
     """Returns the hash of the provided password."""
@@ -40,9 +49,6 @@ def create_access_token(data: dict):
 def decode_token(token: str):
     # PyJWT requires the algorithms list for security
     return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-
-# This tells FastAPI where to look for the token (the /token endpoint)
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/token")
 
 def get_current_user(
     token: str = Depends(oauth2_scheme),
