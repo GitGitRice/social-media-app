@@ -4,8 +4,8 @@ from sqlmodel import SQLModel, Session
 
 from web_app.database import get_session, engine
 
-from web_app.models import UserCreate, ModelError, UserRead, User
-from web_app.crud import add_user_to_db, get_users_from_db
+from web_app.models import UserCreate, ModelError, UserRead, User, PostRead, PostCreate
+from web_app.crud import add_user_to_db, get_users_from_db, create_post, get_posts, get_post_by_id, get_posts_by_user
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -53,3 +53,26 @@ def get_users(*, session: Session = Depends(get_session)) -> list[UserRead]:
     users = get_users_from_db(session)
     return [UserRead.model_validate(user) for user in users]
 
+
+# POST /posts (Create Post)
+@app.post("/api/posts", response_model=PostRead)
+def add_post(post: PostCreate, user_id: int, session: Session = Depends(get_session)):
+    return create_post(session, post, user_id)
+
+# GET /posts (Global Feed)
+@app.get("/api/posts", response_model=list[PostRead])
+def read_posts(offset: int = 0, limit: int = 20, session: Session = Depends(get_session)):
+    return get_posts(session, offset, limit)
+
+# GET /posts/{post_id} (Fetch Single Post)
+@app.get("/api/posts/{post_id}", response_model=PostRead)
+def read_post(post_id: int, session: Session = Depends(get_session)):
+    post = get_post_by_id(session, post_id)
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    return post
+
+# GET /users/{id}/posts (User Profile Posts)
+@app.get("/api/users/{user_id}/posts", response_model=list[PostRead])
+def read_user_posts(user_id: int, session: Session = Depends(get_session)):
+    return get_posts_by_user(session, user_id)
