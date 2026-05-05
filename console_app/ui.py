@@ -3,8 +3,8 @@ from rich.table import Table
 from rich.console import Console
 from rich.panel import Panel
 
-from web_app.models import UserCreate, UserRead, PostCreate, PostRead
-from console_app.client_api import add_user, get_users, add_post, get_posts, get_posts_by_user
+from web_app.models import UserCreate, UserRead
+from console_app.client_api import add_user, get_users
 
 console = Console()
 
@@ -93,111 +93,26 @@ def get_users_ui() -> None:
     selected_user = next(u for u in users if u.user_name == selection)
     show_user_ui(selected_user)
 
-def add_post_ui() -> None:
-    """UI zum Erstellen eines Posts: Wähle User -> Schreibe Inhalt."""
-    users = get_users()
-    if not users:
-        console.print("[red]Keine Users vorhanden. Bitte erst einen User anlegen![/red]")
-        return
-
-    # 1. User auswählen, der posten soll
-    user_choices = [f"{u.user_name} (ID: {u.id})" for u in users]
-    user_selection = questionary.select(
-        "Wähle den Autor für den Post:",
-        choices=user_choices + ["Abbrechen"]
-    ).ask()
-
-    if user_selection == "Abbrechen" or not user_selection:
-        return
-
-    # ID aus dem String extrahieren
-    author_id = int(user_selection.split("(ID: ")[1].replace(")", ""))
-
-    # 2. Inhalt abfragen
-    content = questionary.text("Inhalt des Posts:").ask()
-    
-    if content:
-        new_post = PostCreate(content=content, author_id=author_id)
-        result = add_post(new_post)
-        if result:
-            console.print(f"[green]✅ Post erstellt! ID: {result.id}[/green]")
-        else:
-            console.print("[red]❌ Post erstellen fehlgeschlagen.[/red]")
-
-def show_global_feed_ui() -> None:
-    """Zeigt den globalen Feed aller Posts."""
-    posts = get_posts(limit=20)
-    if not posts:
-        console.print("\n[yellow]Der Feed ist momentan leer.[/yellow]\n")
-        return
-
-    table = Table(title="🌐 Global Feed", show_header=True, header_style="bold cyan")
-    table.add_column("ID", style="dim")
-    table.add_column("Autor", style="magenta")
-    table.add_column("Inhalt")
-    table.add_column("Datum", justify="right")
-
-    for p in posts:
-        table.add_row(
-            str(p.id),
-            f"User {p.author_id}", # In einer echten App würdest du hier den Namen via Join anzeigen
-            p.content,
-            p.created_at.strftime("%Y-%m-%d %H:%M")
-        )
-    console.print(table)
-    questionary.press_any_key_to_continue().ask()
-
-def show_user_posts_ui() -> None:
-    """Zeigt die Posts eines gewählten Users."""
-    users = get_users()
-    if not users:
-        return
-
-    user_choices = [f"{u.user_name} (ID: {u.id})" for u in users]
-    selection = questionary.select("Wähle einen User an, um seine Posts zu sehen:", 
-                                   choices=user_choices + ["Zurück"]).ask()
-
-    if selection == "Zurück" or not selection:
-        return
-
-    user_id = int(selection.split("(ID: ")[1].replace(")", ""))
-    posts = get_posts_by_user(user_id)
-
-    if not posts:
-        console.print(f"[yellow]User {user_id} hat noch keine Posts.[/yellow]")
-    else:
-        table = Table(title=f"Posts von User {user_id}", show_header=True)
-        table.add_column("ID")
-        table.add_column("Inhalt")
-        for p in posts:
-            table.add_row(str(p.id), p.content)
-        console.print(table)
-    
-    questionary.press_any_key_to_continue().ask()
-
 def main_menu_ui() -> None:
-    """Erweitertes Hauptmenü."""
+    """Displays the main menu of the console app"""
     while True:
         answer = questionary.select(
-            message="Social Media App - Console Client",
-            qmark="",
+            message="Main Menu",
+            qmark = "",
             instruction=" ",
             choices=[
                 "Add User",
                 "Display Users",
-                "--- Posts ---",
-                "Create Post",
-                "Global Feed",
-                "View User Posts",
-                "---",
                 "Exit"
             ]).ask()
-        
         match answer:
-            case "Add User": add_user_ui()
-            case "Display Users": get_users_ui()
-            case "Create Post": add_post_ui()
-            case "Global Feed": show_global_feed_ui()
-            case "View User Posts": show_user_posts_ui()
-            case "Exit": break
-            case _: continue
+            case "Add User":
+                add_user_ui()
+            case "Display Users":
+                get_users_ui()
+            case "Exit":
+                break
+            case _:
+                # can only trigger, if programmer used the wrong strings in case statement
+                print("Invalid Selection") 
+                continue

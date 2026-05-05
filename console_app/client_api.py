@@ -1,5 +1,5 @@
 import requests
-from web_app.models import UserCreate, UserRead, PostCreate, PostRead
+from web_app.models import UserCreate, UserRead
 
 BASE_URL = "http://127.0.0.1:8000/api"
 
@@ -26,39 +26,6 @@ def get_users() -> list[UserRead]:
         if response.status_code == 200:
             # validate JSON response into UserRead object
             return [UserRead.model_validate(u) for u in response.json()]
-        return []
-    except requests.exceptions.ConnectionError:
-        return []
-    
-
-def add_post(post: PostCreate) -> PostRead | None:
-    """Sendet einen neuen Post an den Server."""
-    try:
-        response = requests.post(f"{BASE_URL}/posts", json=post.model_dump())
-        if response.status_code == 200:
-            return PostRead.model_validate(response.json())
-        print(f"API Error: {response.json().get('detail')}")
-        return None
-    except requests.exceptions.ConnectionError:
-        print("Network Error: Could not connect to server.")
-        return None
-
-def get_posts(offset: int = 0, limit: int = 10) -> list[PostRead]:
-    """Holt den globalen Feed."""
-    try:
-        response = requests.get(f"{BASE_URL}/posts", params={"offset": offset, "limit": limit})
-        if response.status_code == 200:
-            return [PostRead.model_validate(p) for p in response.json()]
-        return []
-    except requests.exceptions.ConnectionError:
-        return []
-
-def get_posts_by_user(user_id: int, offset: int = 0, limit: int = 10) -> list[PostRead]:
-    """Holt alle Posts eines spezifischen Users."""
-    try:
-        response = requests.get(f"{BASE_URL}/users/{user_id}/posts", params={"offset": offset, "limit": limit})
-        if response.status_code == 200:
-            return [PostRead.model_validate(p) for p in response.json()]
         return []
     except requests.exceptions.ConnectionError:
         return []
