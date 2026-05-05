@@ -29,6 +29,7 @@ def add_user_to_db(user: UserCreate, session: Session) -> User | ModelError:
         session.rollback()
         return ModelError.DATABASE_ERROR
     
+
 def get_users_from_db(session: Session) -> list[User]:
     """
     Returns a list of User table models from the db session.
@@ -39,6 +40,7 @@ def get_users_from_db(session: Session) -> list[User]:
     # cast to return value of function. SQLModel .all() is returning Sequence[User]
     return list(users) 
 
+
 # POST
 def create_post(session: Session, post_data: PostCreate, user_id: int) -> Post:
     db_post = Post.model_validate(post_data)
@@ -48,16 +50,34 @@ def create_post(session: Session, post_data: PostCreate, user_id: int) -> Post:
     session.refresh(db_post)
     return db_post
 
+
 def get_posts(session: Session, offset: int = 0, limit: int = 100) -> list[Post]:
     # Paginated list of all public posts
     statement = select(Post).offset(offset).limit(limit).order_by(desc(Post.created_at))
     users = session.exec(statement).all()
     return list(users)
 
+
 def get_post_by_id(session: Session, post_id: int) -> Post | None:
     return session.get(Post, post_id) #
+
 
 def get_posts_by_user(session: Session, user_id: int, offset: int = 0, limit: int = 10) -> list[Post]:
     # Filter Post table by author_id
     statement = select(Post).where(Post.author_id == user_id).offset(offset).limit(limit)
     return list(session.exec(statement).all())
+
+
+def delete_post_from_db(session: Session, post_id: int) -> bool:
+    db_post = session.get(Post, post_id)
+    if not db_post:
+        return False
+    
+    try:
+        session.delete(db_post)
+        session.commit()
+        return True
+    except Exception as e:
+        print(f"Fehler beim Löschen: {e}")
+        session.rollback()
+        return False
