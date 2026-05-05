@@ -5,7 +5,7 @@ from sqlmodel import SQLModel, Session
 from web_app.database import get_session, engine
 
 from web_app.models import UserCreate, ModelError, UserRead, User, PostRead, PostCreate
-from web_app.crud import add_user_to_db, get_users_from_db, create_post, get_posts, get_post_by_id, get_posts_by_user
+from web_app.crud import add_user_to_db, get_users_from_db, create_post, get_posts, get_post_by_id, get_posts_by_user, delete_post_from_db
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -76,3 +76,14 @@ def read_post(post_id: int, session: Session = Depends(get_session)):
 @app.get("/api/users/{user_id}/posts", response_model=list[PostRead])
 def read_user_posts(user_id: int, session: Session = Depends(get_session)):
     return get_posts_by_user(session, user_id)
+
+
+@app.delete("/api/posts/{post_id}")
+def delete_post(post_id: int, session: Session = Depends(get_session)):
+    """
+    Löscht einen spezifischen Post.
+    """
+    success = delete_post_from_db(session, post_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Post nicht gefunden")
+    return {"detail": "Post erfolgreich gelöscht"}
