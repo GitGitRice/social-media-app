@@ -75,11 +75,15 @@ If you want to understand how things work under the hood:
     pip install -r requirements.txt
     ```
     These are the dependencies, which are key to the project:
-    - pip install sqlmodel
-    - pip install "fastapi[standard]"
-    - pip install requests
-    - pip install questionary
-    - pip install rich
+    ```bash
+    pip install sqlmodel
+    pip install "fastapi[standard]"
+    pip install requests
+    pip install questionary
+    pip install rich
+    pip install bcrypt
+    pip install "python-jose[cryptography]"
+    ```
 
 4.  **Run the Server manually**:
     ```bash
