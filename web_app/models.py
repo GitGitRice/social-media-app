@@ -1,8 +1,6 @@
-from sqlmodel import SQLModel, Field, Relationship
+from sqlmodel import SQLModel, Field
 from datetime import datetime, timezone
 from enum import Enum
-
-# --- Existing User Models ---
 
 class UserBase (SQLModel):
     """
@@ -22,8 +20,7 @@ class User (UserBase, table=True):
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc)
     )
     # hashed_password : str
-    # RELATIONSHIP: Link User to Posts
-    posts: List["Post"] = Relationship(back_populates="author")
+
 
 class UserCreate (UserBase):
     """
@@ -38,31 +35,6 @@ class UserRead (UserBase):
     A data model with the additonal attributes to be returned for a user.
     """
     id: int
-    created_at: datetime
-
-
-class PostBase(SQLModel):
-    content: str
-    
-
-class Post(PostBase, table=True):
-    id: int | None = Field (
-        default=None,
-        primary_key=True
-    )
-    # Verlinkung mit User.id
-    author_id: int = Field(foreign_key="user.id")
-    
-    # Verlinkt Post zurück mit Author
-    author: User = Relationship(back_populates="posts")
-    
-    
-class PostCreate(PostBase):
-    author_id: int  
-
-class PostRead(PostBase):
-    id: int
-    author_id: int
     created_at: datetime
 
 
