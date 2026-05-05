@@ -19,7 +19,7 @@ graph TD
     end
 
     subgraph "The 'Brain' (Shared Knowledge)"
-        Models["Pydantic Models<br/>Data Blueprints"]
+        Models["Pydantic/SQLModel<br/>Data Blueprints"]
     end
 
     subgraph "Server Side (Web App)"
@@ -41,6 +41,7 @@ graph TD
     
     %% Shared Models
     UI -.->|Uses| Models
+    CAPI -.->|Uses| Models
     Main -.->|Uses| Models
     Auth -.->|Uses| Models
     CRUD -.->|Uses| Models
