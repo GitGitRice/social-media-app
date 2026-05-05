@@ -4,8 +4,8 @@ from sqlmodel import SQLModel, Session
 
 from web_app.database import get_session, engine
 
-from web_app.models import UserCreate, ModelError, UserRead, User, PostCreate, PostRead
-from web_app.crud import add_user_to_db, get_users_from_db, create_post, get_posts, get_post_by_id, get_posts_by_user
+from web_app.models import UserCreate, ModelError, UserRead, User
+from web_app.crud import add_user_to_db, get_users_from_db
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -53,51 +53,3 @@ def get_users(*, session: Session = Depends(get_session)) -> list[UserRead]:
     users = get_users_from_db(session)
     return [UserRead.model_validate(user) for user in users]
 
-@app.post("/api/posts", response_model=PostRead)
-def api_create_post(
-    *, 
-    post: PostCreate, 
-    session: Session = Depends(get_session)
-) -> PostRead:
-    """POST /posts (Create Post)"""
-    result = create_post(post, session)
-    if isinstance(result, ModelError):
-        raise HTTPException(status_code=500, detail=result)
-    return PostRead.model_validate(result)
-
-@app.get("/api/posts", response_model=list[PostRead])
-def api_get_posts(
-    offset: int = 0, 
-    limit: int = 10, 
-    session: Session = Depends(get_session)
-) -> list[PostRead]:
-    """GET /posts (Global Feed)"""
-    posts = get_posts(session, offset, limit)
-    return [PostRead.model_validate(p) for p in posts]
-
-@app.get("/api/posts/{post_id}", response_model=PostRead)
-def api_get_post_by_id(
-    post_id: int, 
-    session: Session = Depends(get_session)
-) -> PostRead:
-    """GET /posts/{post_id} (Fetch Single Post)"""
-    post = get_post_by_id(session, post_id)
-    if not post:
-        raise HTTPException(status_code=404, detail="Post not found")
-    return PostRead.model_validate(post)
-
-@app.get("/api/users/{user_id}/posts", response_model=list[PostRead])
-def api_get_user_posts(
-    user_id: int, 
-    offset: int = 0, 
-    limit: int = 10, 
-    session: Session = Depends(get_session)
-) -> list[PostRead]:
-    """GET /users/{id}/posts (User Profile Posts)"""
-    # First, check if user exists to provide a proper 404 if needed
-    user = session.get(User, user_id)
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-        
-    posts = get_posts_by_user(session, user_id, offset, limit)
-    return [PostRead.model_validate(p) for p in posts]
