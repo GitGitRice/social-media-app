@@ -66,3 +66,11 @@ def get_user_posts(user_id: int) -> list[PostRead]:
         return []
     except requests.exceptions.ConnectionError:
         return []
+    
+def remove_post(post_id: int) -> bool:
+    """Sendet einen DELETE-Request an den Server."""
+    try:
+        response = requests.delete(f"{BASE_URL}/posts/{post_id}")
+        return response.status_code == 200
+    except requests.exceptions.ConnectionError:
+        return False
