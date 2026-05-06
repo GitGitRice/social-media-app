@@ -78,18 +78,42 @@ def get_users_from_db(session: Session) -> list[User]:
 
 
 # POST
-def create_post(session: Session, post_data: PostCreate, user_id: int) -> Post:
-    db_post = Post.model_validate(post_data)
-    db_post.author_id = user_id #
-    session.add(db_post)
-    session.commit()
-    session.refresh(db_post)
-    return db_post
+def create_post(session: Session, post_data: PostCreate, user_id: int) -> Post | ModelError:
+    """
+    Adds a PostCreate object to the db session and commits it.
+    
+    In case of success, the Post table model is returned.
+    In case of error a ModelError enum is returned.
+    """
+    try:
+            db_post = Post.model_validate(post_data)
+            db_post.author_id = user_id
+            session.add(db_post)
+            session.commit()
+            session.refresh(db_post)
+            return db_post
+            
+    except IntegrityError as e:
+        # Happens if the author_id does not exist in the User table (Foreign Key Constraint)
+        print(f"IntegrityError: {e}")
+        session.rollback()
+        return ModelError.AUTHOR_NOT_FOUND
+        
+    except ValidationError as e:
+        # Happens if the post content doesn't meet the schema requirements
+        print(f"ValidationError: {e}")
+        return ModelError.VALIDATION_ERROR
+        
+    except Exception as e:
+        # Catch-all for other database issues
+        print(f"Unexpected error: {e}")
+        session.rollback()
+        return ModelError.DATABASE_ERROR
 
 
 def get_posts(session: Session, offset: int = 0, limit: int = 100) -> list[Post]:
     """
-    Paginated list of all public posts
+    Returns a list of Post table models from the db session with pagination.
     """
     statement = select(Post).offset(offset).limit(limit).order_by(desc(Post.created_at))
     users = session.exec(statement).all()
@@ -97,12 +121,15 @@ def get_posts(session: Session, offset: int = 0, limit: int = 100) -> list[Post]
 
 
 def get_post_by_id(session: Session, post_id: int) -> Post | None:
+    """
+    Returns a single Post table model by its ID or None if not found.
+    """
     return session.get(Post, post_id) #
 
 
 def get_posts_by_user(session: Session, user_id: int, offset: int = 0, limit: int = 10) -> list[Post]:
     """
-    Filter Post table by author_id
+    Returns a list of Post table models filtered by a specific author_id.
     """
     statement = select(Post).where(Post.author_id == user_id).offset(offset).limit(limit)
     return list(session.exec(statement).all())
@@ -110,7 +137,9 @@ def get_posts_by_user(session: Session, user_id: int, offset: int = 0, limit: in
 
 def delete_post_from_db(session: Session, post_id: int) -> bool:
     """
-    Deletes posts using ID
+    Removes a Post record from the database. 
+    
+    Returns True if successful, False if the post was not found.
     """
     db_post = session.get(Post, post_id)
     if not db_post:
