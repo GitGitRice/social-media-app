@@ -1,13 +1,19 @@
 import requests
 from web_app.models import UserCreate, UserRead
+from dotenv import load_dotenv
+import os
 
-BASE_URL = "http://127.0.0.1:8000/api"
+# Load environment variables from .env
+load_dotenv()
+
+# read server url from environment variables
+SERVER_URL = os.getenv("SERVER_URL", "http://127.0.0.1:8000/api")
 
 def add_user(user: UserCreate) -> UserRead | None:
     """Sends a UserCreate object and returns a UserRead object."""
     try:
         # .model_dump() turns the Pydantic object into a JSON-serializable dict
-        response = requests.post(f"{BASE_URL}/users", json=user.model_dump())
+        response = requests.post(f"{SERVER_URL}/users", json=user.model_dump())
         
         if response.status_code == 200:
             return UserRead.model_validate(response.json())
@@ -22,7 +28,7 @@ def add_user(user: UserCreate) -> UserRead | None:
 def get_users() -> list[UserRead]:
     """Returns a list of UserRead objects."""
     try:
-        response = requests.get(f"{BASE_URL}/users")
+        response = requests.get(f"{SERVER_URL}/users")
         if response.status_code == 200:
             # validate JSON response into UserRead object
             return [UserRead.model_validate(u) for u in response.json()]

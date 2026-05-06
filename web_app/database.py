@@ -1,23 +1,26 @@
 from sqlmodel import create_engine, Session
 import os
+from dotenv import load_dotenv
 
-# 1. Define the database location
-sqlite_file_name = "database.db"
-sqlite_url = f"sqlite:///{sqlite_file_name}"
+# Load environment variables from .env
+load_dotenv()
 
-# 2. Create the Engine
-# check_same_thread=False is REQUIRED for SQLite + FastAPI
-# because FastAPI can handle requests on different threads.
+# load URL from environment variable
+db_url = os.getenv("DATABASE_URL", "sqlite:///./database.db")
+
+# Create the Engine
+# check_same_thread is only needed for SQLite.
+connect_args = {}
+if db_url.startswith("sqlite"):
+    connect_args = {"check_same_thread": False}
+
 engine = create_engine(
-    sqlite_url, 
-    connect_args={"check_same_thread": False}, 
-    echo=True  # Set to True to see the actual SQL queries in your console
+    db_url, 
+    connect_args=connect_args, 
+    echo=True 
 )
 
-# 3. Dependency to be used in FastAPI routes
+# Dependency used for routes
 def get_session():
-    """
-    Provides a database session that automatically closes after the request is finished.
-    """
     with Session(engine) as session:
         yield session
