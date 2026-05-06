@@ -77,7 +77,7 @@ def get_users_from_db(session: Session) -> list[User]:
     return list(users) 
 
 
-# POST
+#--------------------------- Posts ----------------------------
 def create_post(session: Session, post_data: PostCreate, user_id: int) -> Post | ModelError:
     """
     Adds a PostCreate object to the db session and commits it.
