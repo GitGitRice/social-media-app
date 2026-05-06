@@ -78,12 +78,13 @@ class PostBase(SQLModel):
     """
     content: str
     # author_id is the foreign key for User table
-    author_id: int | None = Field(default=None, foreign_key="user.id")
+
 
 class Post(PostBase, table=True):
     """
     Table model with the columns stored in db.
     """
+    author_id: int = Field(foreign_key="user.id")
     id: int | None = Field(default=None, primary_key=True)
     # index=True for faster requests in the feed
     created_at: datetime = Field(
@@ -104,5 +105,6 @@ class PostRead(PostBase):
     """
     A data model with the additional attributes to be returned for a post.
     """
+    author_id: int 
     id: int
     created_at: datetime
