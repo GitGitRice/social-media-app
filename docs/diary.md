@@ -22,3 +22,5 @@
     - changing comment language to english
     - moving models, routes closer together
     - adding comments, headlines
+- worked on merging pull requests for server-side authentication and user post functionality (Daniel)
+- worked on design of SQLModel, REST API, and first draft of UI dialog flow (Daniel)
