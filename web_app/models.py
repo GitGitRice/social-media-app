@@ -66,6 +66,10 @@ class ModelError(str, Enum):
     USER_NAME_NOT_FOUND = "USER_NAME_NOT_FOUND"
     USER_ID_NOT_FOUND = "USER_ID_NOT_FOUND"
 
+    # Errors related to post CRUD
+    POST_NOT_FOUND = "POST_NOT_FOUND"
+    AUTHOR_NOT_FOUND = "AUTHOR_NOT_FOUND" # In case author_id is invalid
+
 #--------------------------- Post Models ----------------------------
 
 class PostBase(SQLModel):
