@@ -134,7 +134,9 @@ def get_posts_by_user(session: Session, user_id: int, offset: int = 0, limit: in
     statement = select(Post).where(Post.author_id == user_id).offset(offset).limit(limit)
     return list(session.exec(statement).all())
 
-
+# needs another verification, so that not everyone can delete posts, if they know the id
+# possibly users should only be able to delete their own posts
+# admins need to be able to delete posts, as well
 def delete_post_from_db(session: Session, post_id: int) -> bool:
     """
     Removes a Post record from the database. 
