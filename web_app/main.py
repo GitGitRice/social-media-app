@@ -5,7 +5,7 @@ from sqlmodel import SQLModel, Session
 
 from web_app.database import get_session, engine
 from web_app.auth import get_password_hash, verify_password, create_access_token, get_current_user
-from web_app.models import UserCreate, ModelError, UserRead, User, PostRead, PostCreate
+from web_app.models import UserCreate, ModelError, UserRead, User, PostRead, PostCreate, Post
 from web_app.crud import get_user_by_user_name, add_user_to_db, get_users_from_db, create_post, get_posts, get_post_by_id, get_posts_by_user, delete_post_from_db
 
 @asynccontextmanager
@@ -106,14 +106,21 @@ def get_users(*, session: Session = Depends(get_session)) -> list[UserRead]:
 # POST /posts (Create Post)
 @app.post("/api/posts", response_model=PostRead)
 def add_post(
-    post: PostCreate, 
-    user_id: int, 
+    post: PostCreate,
+    user: User = Depends(get_current_user),
     session: Session = Depends(get_session)
     ):
     """
     Accepts a PostCreate object and a user_id to store it to the database.
     """
-    return create_post(session, post, user_id)
+    post_data = post.model_dump()
+    x: UserRead  = UserRead.model_validate(user)
+    db_post = Post(**post_data, author_id=x.id)
+
+    if not user:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
+    
+    return create_post(session = session, db_post=db_post)
 
 # GET /posts (Global Feed)
 @app.get("/api/posts", response_model=list[PostRead])

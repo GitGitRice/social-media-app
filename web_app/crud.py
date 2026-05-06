@@ -78,7 +78,7 @@ def get_users_from_db(session: Session) -> list[User]:
 
 
 #--------------------------- Posts ----------------------------
-def create_post(session: Session, post_data: PostCreate, user_id: int) -> Post | ModelError:
+def create_post(session: Session, db_post: Post) -> Post | ModelError:
     """
     Adds a PostCreate object to the db session and commits it.
     
@@ -86,8 +86,6 @@ def create_post(session: Session, post_data: PostCreate, user_id: int) -> Post |
     In case of error a ModelError enum is returned.
     """
     try:
-            db_post = Post.model_validate(post_data)
-            db_post.author_id = user_id
             session.add(db_post)
             session.commit()
             session.refresh(db_post)
