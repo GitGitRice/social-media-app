@@ -15,3 +15,10 @@
     - Configured IAM user/group permissions for SSM access
     - Prepared the EC2 instance by installing Git, Python, pip, venv and useful CLI Tools
     - Cloned the Github repository and configured Bash for SSM sessions.
+
+### Wed May 6th
+- Created pull request (Steven)
+- improved readability of the code by:
+    - changing comment language to english
+    - moving models, routes closer together
+    - adding comments, headlines
