@@ -20,6 +20,8 @@ class Post(PostBase, table=True):
     author: "User" = Relationship(back_populates="posts")
 
 
+
+#--------------------------- User Models ----------------------------
 class UserBase (SQLModel):
     """
     A data model with the basic user attributes.
@@ -37,15 +39,16 @@ class User (UserBase, table=True):
     id: int | None = Field (default=None, primary_key=True) # need to be optional due to SQLModel inner workings.
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc)
     )
-    # hashed_password : str
+    hashed_password : str
     posts: list["Post"] = Relationship(back_populates="author")
+
 
 
 class UserCreate (UserBase):
     """
     A data model with the additional attributes during user creation.
     """
-    # password: str
+    password: str
     pass
 
 
@@ -68,13 +71,19 @@ class UserPatch (SQLModel):
     password: str | None = None
 
 
+#--------------------------- Model Errors ----------------------------
+
 class ModelError(str, Enum):
     """
     Collects the different error codes when working with table models.
     """
     VALIDATION_ERROR = "VALIDATION_ERROR" #errors caused by Pydantic evaluation.
+    DATABASE_ERROR = "DATABASE_ERROR" # general database errors
+
+    # Errors related to user CRUD
     USER_NAME_ALREADY_EXISTS = "USER_NAME_ALREADY_EXISTS"
-    DATABASE_ERROR = "DATABASE_ERROR"
+    USER_NAME_NOT_FOUND = "USER_NAME_NOT_FOUND"
+    USER_ID_NOT_FOUND = "USER_ID_NOT_FOUND"
 
 class PostCreate(PostBase):
     pass

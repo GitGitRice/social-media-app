@@ -8,6 +8,13 @@ from console_app.client_api import add_user, get_users, add_post, get_posts, get
 
 console = Console()
 
+def validate_password(text):
+    if len(text) < 3:
+        return "Password is too short (min 3 characters)"
+    if len(text) > 8:
+        return "Password is too long (max 8 characters)"
+    return True
+
 def add_user_ui() -> None:
     """Display add user form and collect answers"""
     answers = questionary.form(
@@ -16,6 +23,9 @@ def add_user_ui() -> None:
             validate=lambda text: True if len(text.strip()) > 0 else "User Name cannot be empty!"),
         first_name = questionary.text("First Name"),
         last_name = questionary.text("Last Name"),
+        password = questionary.password(
+            "Password (3-8 characters)",
+            validate=validate_password),
         bio = questionary.text ("Biography", multiline=True)
     ).ask()
 
@@ -24,15 +34,18 @@ def add_user_ui() -> None:
         print("Adding User was cancelled.")
         return
     
-    # form entries return "", if user just presses enter, but UserCreate expects None, if no value was specified. So, we translate "" to None
+    # the form entries return "", if user just pressed enter, but UserCreate expects None, if no value was supplied. So, we translate empty strings "" to None
     clean_answers = {k: (v if v.strip() != "" else None) for k, v in answers.items()}
 
     # Create UserCreate object and add through api to server
     user = UserCreate(
         user_name=str(clean_answers.get("user_name")), 
         first_name=clean_answers.get("first_name"), 
-        last_name=clean_answers.get("last_name"), 
+        last_name=clean_answers.get("last_name"),
+        password=str(clean_answers.get("password")), 
         bio=clean_answers.get("bio"))
+    
+    # Add user via client api to server
     add_user(user)
 
 def show_user_ui(user: UserRead) -> None:

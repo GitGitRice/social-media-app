@@ -36,7 +36,25 @@ This application consists of two main parts:
 
 We've made it easy to get up and running! Follow these steps:
 
-### 1. The Quick Start (Recommended)
+### 1. Environment Variables
+
+This project uses environment variables for configuration. A `.env.example` file is provided to help you set up your environment.
+
+**Step 1: Create your `.env` file**
+
+Copy the `.env.example` file to a new file named `.env` in the root of your project:
+
+```bash
+cp .env.example .env
+```
+
+**Step 2: Configure your environment variables**
+
+Open the newly created `.env` file and update the values as needed. For example, you might configure your `SERVER_URL` for the console app to connect to a remote server.
+
+---
+
+### 2. The Quick Start (Recommended)
 
 The easiest way to start is using our helper scripts. They automatically handle setting up your virtual environment and installing everything you need.
 
@@ -56,7 +74,7 @@ Open a **new** terminal window and run:
 
 ---
 
-### 2. Manual Setup (For the Curious)
+### 3. Manual Setup (For the Curious)
 
 If you want to understand how things work under the hood:
 
@@ -76,11 +94,17 @@ If you want to understand how things work under the hood:
     pip install -r requirements.txt
     ```
     These are the dependencies, which are key to the project:
-    - pip install sqlmodel
-    - pip install "fastapi[standard]"
-    - pip install requests
-    - pip install questionary
-    - pip install rich
+    ```bash
+    pip install sqlmodel
+    pip install "fastapi[standard]"
+    pip install requests
+    pip install questionary
+    pip install rich
+    pip install bcrypt
+    pip install "python-jose[cryptography]"
+    pip install python-dotenv
+
+    ```
 
 4.  **Run the Server manually**:
     ```bash
@@ -97,7 +121,7 @@ If you want to understand how things work under the hood:
 
 - `web_app/`: The heart of the backend. Contains models, database logic, and API endpoints.
 - `console_app/`: The terminal-based user interface.
-- `docs/`: Technical documentation ([Architecture](docs/architecture.md), [Specification](docs/specification.md), [Tasks](docs/tasks.md)).
+- `docs/`: Technical documentation ([Architecture](docs/architecture.md), [Project Plan](docs/project_plan.md)).
 
 ---
 

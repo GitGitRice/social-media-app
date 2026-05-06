@@ -1,4 +1,13 @@
+
+# virtual environment
 .venv/
+
+# python binaries/bytecode
 __pycache__/
+*.pyc
+
+# environment variables file
 .env
-database.db
+
+# database files
+*.db

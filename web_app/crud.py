@@ -5,18 +5,54 @@ from sqlalchemy.exc import IntegrityError
 from typing import Sequence
 
 
-def add_user_to_db(user: UserCreate, session: Session) -> User | ModelError:
+def get_user_by_user_name (user_name: str, session: Session) -> User | ModelError:
     """
-    Adds a UserCreate to the db session and commits it.
+    Returns a User for the provided user_name.
     
-    In case of success, the User table model is returned. In case of error a ModelError enum is returned.
+    In case of success, a User table model is returned. In case of error a ModelError enum is returned: 
+    - USER_NAME_NOT_FOUND, if user_name not found in db
+    - DATABASE_ERROR, in case of other errors
     """
     try:
-        db_user = User.model_validate(user)
-        session.add(db_user)
+        user = session.exec(select(User).where(User.user_name == user_name)).first()
+        if not user:
+            return ModelError.USER_NAME_NOT_FOUND
+        return user
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+        return ModelError.DATABASE_ERROR
+
+def get_user_by_id (id: int, session) -> User | ModelError:
+    """
+    Returns a User for the provided user id.
+    
+    In case of success, a User table model is returned. In case of error a ModelError enum is returned: 
+    - USER_ID_NOT_FOUND, if user_name not found in db
+    - DATABASE_ERROR, in case of other errors
+    """
+    try:
+        user = session.get(User, id)
+        if not user:
+            return ModelError.USER_ID_NOT_FOUND
+        return user
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+        return ModelError.DATABASE_ERROR
+
+def add_user_to_db(user: User, session: Session) -> User | ModelError:
+    """
+    Adds a User to the db session and commits it.
+    
+    In case of success, the User table model is returned. In case of error a ModelError enum is returned:
+    - VALIDATION_ERROR, if provided user cannot be validated to a User table model
+    - USER_NAME_ALREADY_EXISTS, if user_name of the provided user already exists
+    - DATABASE_ERROR, in case of other errors
+    """
+    try:
+        session.add(user)
         session.commit()
-        session.refresh(db_user)
-        return db_user  # Success: Return the object directly
+        session.refresh(user)
+        return user  # Success: Return the object directly
     except ValidationError as e:
         print(f"ValidationError: {e}")
         return ModelError.VALIDATION_ERROR

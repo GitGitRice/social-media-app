@@ -1,13 +1,19 @@
 import requests
 from web_app.models import UserCreate, UserRead, PostCreate, PostRead
+from dotenv import load_dotenv
+import os
 
-BASE_URL = "http://127.0.0.1:8000/api"
+# Load environment variables from .env
+load_dotenv()
+
+# read server url from environment variables
+SERVER_URL = os.getenv("SERVER_URL", "http://127.0.0.1:8000/api")
 
 def add_user(user: UserCreate) -> UserRead | None:
     """Sends a UserCreate object and returns a UserRead object."""
     try:
         # .model_dump() turns the Pydantic object into a JSON-serializable dict
-        response = requests.post(f"{BASE_URL}/users", json=user.model_dump())
+        response = requests.post(f"{SERVER_URL}/users", json=user.model_dump())
         
         if response.status_code == 200:
             return UserRead.model_validate(response.json())
@@ -22,7 +28,7 @@ def add_user(user: UserCreate) -> UserRead | None:
 def get_users() -> list[UserRead]:
     """Returns a list of UserRead objects."""
     try:
-        response = requests.get(f"{BASE_URL}/users")
+        response = requests.get(f"{SERVER_URL}/users")
         if response.status_code == 200:
             # validate JSON response into UserRead object
             return [UserRead.model_validate(u) for u in response.json()]
@@ -37,7 +43,7 @@ def add_post(post: PostCreate, user_id: int) -> PostRead | None:
     try:
         # user_id wird als Query-Parameter übergeben
         response = requests.post(
-            f"{BASE_URL}/posts", 
+            f"{SERVER_URL}/posts", 
             params={"user_id": user_id}, 
             json=post.model_dump()
         )
@@ -50,7 +56,7 @@ def add_post(post: PostCreate, user_id: int) -> PostRead | None:
 def get_posts(offset: int = 0, limit: int = 20) -> list[PostRead]:
     """Holt den globalen Feed."""
     try:
-        response = requests.get(f"{BASE_URL}/posts", params={"offset": offset, "limit": limit})
+        response = requests.get(f"{SERVER_URL}/posts", params={"offset": offset, "limit": limit})
         if response.status_code == 200:
             return [PostRead.model_validate(p) for p in response.json()]
         return []
@@ -60,7 +66,7 @@ def get_posts(offset: int = 0, limit: int = 20) -> list[PostRead]:
 def get_user_posts(user_id: int) -> list[PostRead]:
     """Holt alle Posts eines spezifischen Nutzers."""
     try:
-        response = requests.get(f"{BASE_URL}/users/{user_id}/posts")
+        response = requests.get(f"{SERVER_URL}/users/{user_id}/posts")
         if response.status_code == 200:
             return [PostRead.model_validate(p) for p in response.json()]
         return []
@@ -70,7 +76,7 @@ def get_user_posts(user_id: int) -> list[PostRead]:
 def remove_post(post_id: int) -> bool:
     """Sendet einen DELETE-Request an den Server."""
     try:
-        response = requests.delete(f"{BASE_URL}/posts/{post_id}")
+        response = requests.delete(f"{SERVER_URL}/posts/{post_id}")
         return response.status_code == 200
     except requests.exceptions.ConnectionError:
         return False
