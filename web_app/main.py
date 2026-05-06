@@ -128,7 +128,7 @@ def read_user_posts(user_id: int, session: Session = Depends(get_session)):
 @app.delete("/api/posts/{post_id}")
 def delete_post(post_id: int, session: Session = Depends(get_session)):
     """
-    Löscht einen spezifischen Post.
+    Deletes a specific post using post_id.
     """
     success = delete_post_from_db(session, post_id)
     if not success:

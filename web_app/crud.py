@@ -88,7 +88,9 @@ def create_post(session: Session, post_data: PostCreate, user_id: int) -> Post:
 
 
 def get_posts(session: Session, offset: int = 0, limit: int = 100) -> list[Post]:
-    # Paginated list of all public posts
+    """
+    Paginated list of all public posts
+    """
     statement = select(Post).offset(offset).limit(limit).order_by(desc(Post.created_at))
     users = session.exec(statement).all()
     return list(users)
@@ -99,12 +101,17 @@ def get_post_by_id(session: Session, post_id: int) -> Post | None:
 
 
 def get_posts_by_user(session: Session, user_id: int, offset: int = 0, limit: int = 10) -> list[Post]:
-    # Filter Post table by author_id
+    """
+    Filter Post table by author_id
+    """
     statement = select(Post).where(Post.author_id == user_id).offset(offset).limit(limit)
     return list(session.exec(statement).all())
 
 
 def delete_post_from_db(session: Session, post_id: int) -> bool:
+    """
+    Deletes posts using ID
+    """
     db_post = session.get(Post, post_id)
     if not db_post:
         return False
