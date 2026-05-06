@@ -3,24 +3,6 @@ from datetime import datetime, timezone
 from enum import Enum
 
 
-class PostBase(SQLModel):
-    content: str
-    # author_id ist der Fremdschlüssel zum User
-    author_id: int | None = Field(default=None, foreign_key="user.id")
-
-class Post(PostBase, table=True):
-    id: int | None = Field(default=None, primary_key=True)
-    # index=True für schnellere Abfragen beim Feed
-    created_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc), 
-        index=True
-    )
-    
-    # Relationship: Ein Post gehört zu einem Autor
-    author: "User" = Relationship(back_populates="posts")
-
-
-
 #--------------------------- User Models ----------------------------
 class UserBase (SQLModel):
     """
@@ -37,8 +19,7 @@ class User (UserBase, table=True):
     A table model with the columns stored in db.
     """
     id: int | None = Field (default=None, primary_key=True) # need to be optional due to SQLModel inner workings.
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc)
-    )
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     hashed_password : str
     posts: list["Post"] = Relationship(back_populates="author")
 
@@ -84,6 +65,24 @@ class ModelError(str, Enum):
     USER_NAME_ALREADY_EXISTS = "USER_NAME_ALREADY_EXISTS"
     USER_NAME_NOT_FOUND = "USER_NAME_NOT_FOUND"
     USER_ID_NOT_FOUND = "USER_ID_NOT_FOUND"
+
+#--------------------------- Post Models ----------------------------
+
+class PostBase(SQLModel):
+    content: str
+    # author_id is the foreign key for User table
+    author_id: int | None = Field(default=None, foreign_key="user.id")
+
+class Post(PostBase, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    # index=True for faster requests in the feed
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc), 
+        index=True
+    )
+    
+    # Relationship: each post belongs to one author
+    author: "User" = Relationship(back_populates="posts")
 
 class PostCreate(PostBase):
     pass

@@ -39,9 +39,9 @@ def get_users() -> list[UserRead]:
 
 # POST
 def add_post(post: PostCreate, user_id: int) -> PostRead | None:
-    """Sendet einen neuen Post an den Server."""
+    """Sends a new post to the server."""
     try:
-        # user_id wird als Query-Parameter übergeben
+        # user_id is handed over as query paramater
         response = requests.post(
             f"{SERVER_URL}/posts", 
             params={"user_id": user_id}, 
@@ -54,7 +54,7 @@ def add_post(post: PostCreate, user_id: int) -> PostRead | None:
         return None
 
 def get_posts(offset: int = 0, limit: int = 20) -> list[PostRead]:
-    """Holt den globalen Feed."""
+    """Fetches the global feed."""
     try:
         response = requests.get(f"{SERVER_URL}/posts", params={"offset": offset, "limit": limit})
         if response.status_code == 200:
@@ -64,7 +64,7 @@ def get_posts(offset: int = 0, limit: int = 20) -> list[PostRead]:
         return []
 
 def get_user_posts(user_id: int) -> list[PostRead]:
-    """Holt alle Posts eines spezifischen Nutzers."""
+    """Fetches all posts of a specific user."""
     try:
         response = requests.get(f"{SERVER_URL}/users/{user_id}/posts")
         if response.status_code == 200:
@@ -74,7 +74,7 @@ def get_user_posts(user_id: int) -> list[PostRead]:
         return []
     
 def remove_post(post_id: int) -> bool:
-    """Sendet einen DELETE-Request an den Server."""
+    """Sends a DELETE request to the server."""
     try:
         response = requests.delete(f"{SERVER_URL}/posts/{post_id}")
         return response.status_code == 200
