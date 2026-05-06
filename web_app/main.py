@@ -101,19 +101,41 @@ def get_users(*, session: Session = Depends(get_session)) -> list[UserRead]:
     return [UserRead.model_validate(user) for user in users]
 
 
+#--------------------------- Post Routes  ----------------------------
+
 # POST /posts (Create Post)
 @app.post("/api/posts", response_model=PostRead)
-def add_post(post: PostCreate, user_id: int, session: Session = Depends(get_session)):
+def add_post(
+    post: PostCreate, 
+    user_id: int, 
+    session: Session = Depends(get_session)
+    ):
+    """
+    Accepts a PostCreate object and a user_id to store it to the database.
+    """
     return create_post(session, post, user_id)
 
 # GET /posts (Global Feed)
 @app.get("/api/posts", response_model=list[PostRead])
-def read_posts(offset: int = 0, limit: int = 20, session: Session = Depends(get_session)):
+def read_posts(
+    offset: int = 0, 
+    limit: int = 20, 
+    session: Session = Depends(get_session)
+    ):
+    """
+    Returns a paginated list of all public posts.
+    """
     return get_posts(session, offset, limit)
 
 # GET /posts/{post_id} (Fetch Single Post)
 @app.get("/api/posts/{post_id}", response_model=PostRead)
-def read_post(post_id: int, session: Session = Depends(get_session)):
+def read_post(
+    post_id: int, 
+    session: Session = Depends(get_session)
+    ):
+    """
+    Fetches a single post record by its unique ID.
+    """
     post = get_post_by_id(session, post_id)
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
@@ -121,14 +143,20 @@ def read_post(post_id: int, session: Session = Depends(get_session)):
 
 # GET /users/{id}/posts (User Profile Posts)
 @app.get("/api/users/{user_id}/posts", response_model=list[PostRead])
-def read_user_posts(user_id: int, session: Session = Depends(get_session)):
+def read_user_posts(
+    user_id: int, 
+    session: Session = Depends(get_session)
+    ):
+    """
+    Returns all posts associated with a specific user ID.
+    """
     return get_posts_by_user(session, user_id)
 
 
 @app.delete("/api/posts/{post_id}")
 def delete_post(post_id: int, session: Session = Depends(get_session)):
     """
-    Deletes a specific post using post_id.
+    Deletes a specific post record from the database.
     """
     success = delete_post_from_db(session, post_id)
     if not success:
