@@ -132,6 +132,7 @@ def main_menu_ui() -> None:
                 "Add User",
                 "Display Users",
                 "Globaler Feed",
+                "Post löschen",
                 "Exit"
             ]).ask()
         match answer:
@@ -141,6 +142,8 @@ def main_menu_ui() -> None:
                 get_users_ui()
             case "Globaler Feed":
                 show_feed_ui()
+            case "Post löschen":  
+                delete_post_ui()
             case "Exit":
                 break
             case _:
@@ -150,21 +153,23 @@ def main_menu_ui() -> None:
 
 
 def show_feed_ui() -> None:
-    """Zeigt die neuesten Posts aller Nutzer an."""
+    """
+    Shows newest posts of all users.
+    """
     posts = get_posts()
     if not posts:
         console.print("[yellow]Der Feed ist noch leer.[/yellow]")
     else:
         for post in posts:
-            # Hier könnte man noch den User-Namen abfragen, 
-            # aktuell haben wir im PostRead nur die author_id
             console.print(Panel(post.content, title=f"Post ID: {post.id} (User {post.author_id})"))
     
     questionary.press_any_key_to_continue().ask()
 
 
 def add_post_ui(user_id: int) -> None:
-    """Ermöglicht es dem aktuell 'eingeloggten' User, etwas zu posten."""
+    """
+    Enables currently logged in user to post posts.
+    """
     content = questionary.text("Was möchtest du teilen?").ask()
     if content:
         post_data = PostCreate(content=content, author_id=user_id)
@@ -175,6 +180,9 @@ def add_post_ui(user_id: int) -> None:
 
 
 def delete_post_ui() -> None:
+    """
+    Asks for a post ID and deletes that post.
+    """
     post_id = questionary.text("ID des zu löschenden Posts:").ask()
     if post_id and post_id.isdigit():
         confirm = questionary.confirm(f"Post {post_id} wirklich löschen?").ask()
@@ -183,3 +191,5 @@ def delete_post_ui() -> None:
                 console.print("[green]Post wurde gelöscht.[/green]")
             else:
                 console.print("[red]Fehler: Post konnte nicht gelöscht werden.[/red]")
+    else:
+        console.print("[yellow]Ungültige ID eingegeben.[/yellow]")
