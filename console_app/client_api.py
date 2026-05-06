@@ -37,7 +37,7 @@ def get_users() -> list[UserRead]:
         return []
 
 
-# POST
+#--------------------------- Posts ----------------------------
 def add_post(post: PostCreate, user_id: int) -> PostRead | None:
     """Sends a new post to the server."""
     try:
