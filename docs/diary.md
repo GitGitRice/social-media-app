@@ -11,3 +11,7 @@
   - Extracted authentication and url parameters into .env file
 - Created pull request (Steven)
 - implemented posts including CRUD functionality and routing
+- Created pull request (Dominik)
+    - Configured IAM user/group permissions for SSM access
+    - Prepared the EC2 instance by installing Git, Python, pip, venv and useful CLI Tools
+    - Cloned the Github repository and configured Bash for SSM sessions.
