@@ -1,5 +1,5 @@
 import requests
-from web_app.models import UserCreate, UserRead
+from web_app.models import UserCreate, UserRead, PostCreate, PostRead
 from dotenv import load_dotenv
 import os
 
@@ -35,3 +35,48 @@ def get_users() -> list[UserRead]:
         return []
     except requests.exceptions.ConnectionError:
         return []
+
+
+#--------------------------- Posts ----------------------------
+def add_post(post: PostCreate, user_id: int) -> PostRead | None:
+    """Sends a new post to the server."""
+    try:
+        # user_id is handed over as query paramater
+        response = requests.post(
+            f"{SERVER_URL}/posts", 
+            params={"user_id": user_id}, 
+            json=post.model_dump()
+        )
+        if response.status_code == 200:
+            return PostRead.model_validate(response.json())
+        return None
+    except requests.exceptions.ConnectionError:
+        return None
+
+def get_posts(offset: int = 0, limit: int = 20) -> list[PostRead]:
+    """Fetches the global feed."""
+    try:
+        response = requests.get(f"{SERVER_URL}/posts", params={"offset": offset, "limit": limit})
+        if response.status_code == 200:
+            return [PostRead.model_validate(p) for p in response.json()]
+        return []
+    except requests.exceptions.ConnectionError:
+        return []
+
+def get_user_posts(user_id: int) -> list[PostRead]:
+    """Fetches all posts of a specific user."""
+    try:
+        response = requests.get(f"{SERVER_URL}/users/{user_id}/posts")
+        if response.status_code == 200:
+            return [PostRead.model_validate(p) for p in response.json()]
+        return []
+    except requests.exceptions.ConnectionError:
+        return []
+    
+def remove_post(post_id: int) -> bool:
+    """Sends a DELETE request to the server."""
+    try:
+        response = requests.delete(f"{SERVER_URL}/posts/{post_id}")
+        return response.status_code == 200
+    except requests.exceptions.ConnectionError:
+        return False
