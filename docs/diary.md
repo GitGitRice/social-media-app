@@ -32,4 +32,7 @@
    - client side authentication
    - client api migration from requests to httpx
    - Refactored the UI and styled it for unified user experience
+- worked on follow N:N logic (Steven)
+  - implemented models for Follow
+  - implemented Relationship between User and Follow
 
