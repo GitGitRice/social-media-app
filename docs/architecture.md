@@ -23,26 +23,28 @@ graph TD
     end
 
     subgraph "Server Side (Web App)"
-        Main["Main<br/>API Gatekeeper"]
+        Main["Main<br/>FastAPI Entry Point"]
+        Routes["Routes<br/>API Endpoints"]
         Auth["Auth<br/>Security &amp; JWT"]
-        CRUD["CRUD<br/>Database Logic"]
-        DB["Database<br/>Connection"]
-        SQLite[["SQLite<br/>Stored Data"]]
+        CRUD["CRUD<br/>Database Operations"]
+        DB["Database<br/>Engine &amp; Session"]
+        SQLite[["SQLite<br/>database.db"]]
     end
 
     %% Interactions
     UI -->|1. Collects Input| CAPI
     CAPI -->|2. HTTP Request| Main
-    Main -->|3. Authenticates| Auth
-    Auth -->|4. Validates Credentials via| CRUD
-    Main -->|6. Routes Request| CRUD
+    Main -->|3. Forwards to| Routes
+    Routes -->|4. Authenticates via| Auth
+    Auth -->|5. Validates User via| CRUD
+    Routes -->|6. Executes| CRUD
     CRUD -->|7. Queries| DB
     DB -->|8. Reads/Writes| SQLite
     
     %% Shared Models
     UI -.->|Uses| Models
     CAPI -.->|Uses| Models
-    Main -.->|Uses| Models
+    Routes -.->|Uses| Models
     Auth -.->|Uses| Models
     CRUD -.->|Uses| Models
 ```
@@ -50,14 +52,15 @@ graph TD
 **Control Flow Description:**
 
 1.  **Client Input**: The `UI Module` collects user input and passes it to the `Client API`.
-2.  **HTTP Request**: The `Client API` sends an HTTP request to the `Main` API Gatekeeper on the server side.
-3.  **Authentication**: The `Main` module directs the request to the `Auth` module for authentication.
-4.  **Validation**: The `Auth` module validates the request, interacting with `CRUD` to verify user credentials or permissions.
-5.  **Request Routing**: After successful authentication, `Main` routes the request to the appropriate `CRUD` operation.
-6.  **Database Query**: The `CRUD` module performs queries on the `Database`.
-7.  **Data Operations**: The `Database` interacts with `SQLite` to read from or write data.
+2.  **HTTP Request**: The `Client API` sends an HTTP request to the `Main` entry point on the server side.
+3.  **Request Routing**: `Main` forwards the request to the appropriate `Routes` module.
+4.  **Authentication**: `Routes` uses the `Auth` module to authenticate the request (typically using FastAPI's dependency injection).
+5.  **Validation**: The `Auth` module validates the JWT and interacts with `CRUD` to verify the user's existence.
+6.  **CRUD Operation**: After authentication, the `Routes` module calls `CRUD` to execute the requested logic.
+7.  **Database Query**: The `CRUD` module performs queries using the `Database` engine and session.
+8.  **Data Operations**: The `Database` layer interacts with the `SQLite` file to read or write data.
 
-**Shared Models**: The `Pydantic Models` module provides data blueprints used by `UI`, `Main`, `Auth`, and `CRUD` to ensure consistent data structures across the application.
+**Shared Models**: The `Pydantic/SQLModel` module provides data blueprints used by both Client and Server to ensure consistent data structures and automated serialization/deserialization.
 
 ---
 
@@ -77,17 +80,18 @@ The most important "glue" in our project is the `models.py` file. It contains **
 *   **SQLite**: A simple file on your disk (`database.db`) that holds all our persistent data.
 
 ### How it's Organized
-1.  **Main**: The receptionist. It receives the HTTP request and decides which function should handle it.
-2.  **CRUD**: The worker. It contains the logic for **C**reating, **R**eading, **U**pdating, and **D**eleting data.
-3.  **Database**: The manager. It handles the low-level connection to the SQLite file.
-4.  **Auth**: Handles security, such as user login and password protection. It validates JWT tokens and hashes passwords.
+1.  **Main (web_app/main.py)**: The FastAPI application entry point. It sets up the lifespan events (like database table creation) and registers the API routers.
+2.  **Routes (web_app/routes/)**: Contains endpoint definitions for different resources (e.g., `auth.py`, `users.py`, `posts.py`). These modules handle incoming HTTP requests, perform validation, call business logic (CRUD), and return responses.
+3.  **Auth (web_app/auth.py)**: Handles security concerns, including user authentication, password hashing, JWT token creation, and validation. It uses FastAPI's dependency injection to secure endpoints.
+4.  **CRUD (web_app/crud/)**: Contains the core business logic for **C**reating, **R**eading, **U**pdating, and **D**eleting data for specific models (e.g., `user.py`, `post.py`). It interacts directly with the database session.
+5.  **Database (web_app/database.py)**: Manages the database engine and provides session dependency for FastAPI. It establishes the connection to the SQLite file.
 
 ---
 
 ## The Console App (Frontend)
 
 ### The Tech Stack
-*   **Requests**: The "telephone" the client uses to call the Server.
+*   **Httpx**: The "telephone" the client uses to call the Server.
 *   **Rich**: Makes the terminal look modern with colors, tables, and panels.
 *   **Questionary**: Handles interactive forms and menus (like choosing options with arrow keys).
 
