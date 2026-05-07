@@ -5,7 +5,7 @@ import questionary
 def welcome_screen() -> UIScreen :
 
     clear_screen()
-    print_header("Welcome", "Social Media App")
+    print_header("Social Media App", "Welcome")
     
     answer = questionary.select(
         "What would you like to do?",

@@ -36,7 +36,6 @@ python-jose==3.5.0
 python-multipart==0.0.27
 PyYAML==6.0.3
 questionary==2.1.1
-requests==2.33.1
 rich==15.0.0
 rich-toolkit==0.19.7
 rignore==0.7.6

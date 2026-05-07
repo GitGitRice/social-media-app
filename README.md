@@ -97,7 +97,6 @@ If you want to understand how things work under the hood:
     ```bash
     pip install sqlmodel
     pip install "fastapi[standard]"
-    pip install requests
     pip install questionary
     pip install rich
     pip install bcrypt

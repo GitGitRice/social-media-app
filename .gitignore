@@ -14,3 +14,6 @@ __pycache__/
 
 # MCP files created on DT's computer
 embeddings.*
+
+# The access token of the console app
+.session.json

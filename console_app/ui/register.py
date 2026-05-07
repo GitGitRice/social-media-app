@@ -13,7 +13,7 @@ def validate_password(text):
 
 def register_screen() -> UIScreen:
     clear_screen()
-    print_header ("Social Media App", "Register as User")
+    print_header ("Social Media App", "Register")
 
     """Display add user form and collect answers"""
     answers = questionary.form(
@@ -30,7 +30,7 @@ def register_screen() -> UIScreen:
 
     if not answers:
         # User pressed Ctrl+C and cancelled the form
-        print_error("Registering User was cancelled")
+        print_error("Registration cancelled.")
         return UIScreen.WELCOME
     
     # the form entries return "", if user just pressed enter, but UserCreate expects None, if no value was supplied. So, we translate empty strings "" to None
@@ -50,5 +50,5 @@ def register_screen() -> UIScreen:
         print_success(f"{created_user.user_name} successfully registered.")
         return UIScreen.MAIN_MENU
     else:
-        print_error("User Registration failed.")
+        print_error("Registration failed.")
         return UIScreen.WELCOME
