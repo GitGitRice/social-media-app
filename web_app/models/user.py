@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .post import Post
+    from .follow import Follow
 
 
 class UserBase(SQLModel):
@@ -24,6 +25,16 @@ class User(UserBase, table=True):
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     hashed_password: str
     posts: list["Post"] = Relationship(back_populates="author")
+
+    # Relationships for following/followers
+    following: list["Follow"] = Relationship(
+        back_populates="follower",
+        sa_relationship_kwargs={"primaryjoin": "User.id==Follow.follower_id"}
+    )
+    followers: list["Follow"] = Relationship(
+        back_populates="followed",
+        sa_relationship_kwargs={"primaryjoin": "User.id==Follow.followed_id"}
+    )
 
 
 class UserCreate(UserBase):
