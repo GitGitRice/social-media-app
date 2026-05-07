@@ -16,7 +16,8 @@ if db_url.startswith("sqlite"):
 
 engine = create_engine(
     db_url, 
-    connect_args=connect_args, 
+    connect_args=connect_args,
+# echo = True prints all SQL commands it executes into the terminal. Set to False in production environment
     echo=True 
 )
 
