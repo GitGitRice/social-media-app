@@ -62,3 +62,7 @@ class UserPatch(SQLModel):
     last_name: str | None = None
     bio: str | None = None
     password: str | None = None
+
+
+class UserDetail(UserRead):
+    is_following: bool = False
