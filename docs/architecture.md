@@ -194,3 +194,73 @@ sequenceDiagram
 4.  **User Retrieval**: The `Auth` module then calls the `CRUD` module's `get_user_by_id` function to fetch the complete `User` object from the `Database`.
 5.  **Request Authorization**: If the token is valid and the user exists, the `Auth` module returns the `User` object to `Server Main`.
 6.  **Response**: `Server Main` then processes the request (in this case, validates the `User` object into `UserRead`) and returns the relevant `UserRead` data back through the `Client API` to the `UI`, which displays it to the `User`.
+
+## The Client App's Internal Workings
+
+### Client-side Module Interaction: Client, UI, and State
+
+In the Console App, several modules collaborate to provide the user experience and interact with the backend.
+
+```mermaid
+graph TD
+    ClientApp["client.py<br/>Application Entry Point"]
+    State["state.py<br/>Session & Token Management"]
+    UIModule["ui/ui.py<br/>Render & Input Logic"]
+    ClientAPI["client_api.py<br/>Backend Communication"]
+
+    ClientApp -->|1. Initializes| State
+    ClientApp -->|2. Initializes & Calls| UIModule
+    UIModule -->|3. Displays Menus & Forms| ClientApp
+    UIModule -->|4. Collects User Input| ClientAPI
+    ClientAPI -->|5. Makes HTTP Requests| State
+    State -->|6. Manages Token & User Data| ClientAPI
+    ClientAPI -->|7. Returns Data| UIModule
+    UIModule -->|8. Updates Display| ClientApp
+```
+
+**Explanation of Client-side Module Interaction:**
+
+1.  **Application Entry Point (`client.py`)**: This is where the console application starts. It initializes the core components, including the `state` module for session management and the `ui` module for user interaction.
+2.  **State Management (`state.py`)**: The `state` module holds global application state, most importantly the `session.client` (an `httpx` client) configured with the base URL and, crucially, the access token for authenticated requests. It also stores the currently logged-in user's details.
+3.  **User Interface (`ui/ui.py`)**: This module is responsible for rendering menus, forms, and other visual elements using `Rich` and `Questionary`. It collects user input and orchestrates the flow of user interactions.
+4.  **Backend Communication (`client_api.py`)**: This module acts as the interface between the UI and the backend API. It contains functions that encapsulate HTTP requests to specific API endpoints, handling request data serialization and deserialization using Pydantic models. It relies on the `state.session.client` for making these requests, which automatically includes authentication headers if a token is present.
+
+### Client-side Access Token Management
+
+The client application manages the access token lifecycle for authenticated interactions with the server.
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant UILogin as UI (Login Screen)
+    participant CAPI as Client API (login_user)
+    participant State as SessionState (state.py)
+    participant Server as Server Main (/api/token)
+    participant ServerMe as Server Main (/api/users/me)
+
+    User->>UILogin: Enters username & password
+    UILogin->>CAPI: Calls login_user(username, password)
+    CAPI->>Server: HTTP POST /api/token (credentials)
+    Server-->>CAPI: Returns JWT Access Token
+    CAPI->>State: save_token(token)
+    State->>State: Stores token & updates HTTPX client headers
+    CAPI->>ServerMe: HTTP GET /api/users/me (with new token in header)
+    ServerMe-->>CAPI: Returns UserRead data
+    CAPI->>State: session.user = UserRead
+    State-->>CAPI:
+    CAPI-->>UILogin: Returns login success/failure
+    UILogin-->>User: Informs of login status
+```
+
+**Explanation of Client-side Access Token Management:**
+
+1.  **User Login**: The `User` provides credentials through the `UI`'s login screen.
+2.  **Initiate Login**: The `UI` calls the `client_api.login_user` function with the provided username and password.
+3.  **Token Request**: `login_user` constructs an HTTP POST request to the `/api/token` endpoint on the server, sending the credentials as form data.
+4.  **Token Reception**: If authentication is successful, the server returns a JWT Access Token.
+5.  **Token Storage**: `login_user` then calls `State.save_token(token)`. This crucial step stores the token within the `SessionState` object and, more importantly, configures the underlying `httpx.Client` instance (accessible via `session.client`) to include this token in the `Authorization` header for all subsequent requests.
+6.  **Fetch User Info**: Immediately after saving the token, `login_user` makes an authenticated HTTP GET request to `/api/users/me`. This request automatically includes the newly stored access token thanks to the `httpx.Client` configuration.
+7.  **User Data Storage**: The server returns the `UserRead` object for the authenticated user. This data is then stored in `State.session.user`.
+8.  **Login Result**: `login_user` returns `True` for success or `False` for failure to the `UI`, which then informs the user.
+
+By centralizing token management in `state.py` and utilizing `httpx`'s client capabilities, the `client_api.py` module can make authenticated requests without explicitly passing the token each time, simplifying the client-side communication logic.
