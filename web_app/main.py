@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from sqlmodel import SQLModel
 
 from web_app.database import engine
-from web_app.routes import auth, users, posts, user_posts
+from web_app.routes import auth, users, posts
 
 
 @asynccontextmanager
@@ -29,4 +29,3 @@ app = FastAPI(
 app.include_router(auth.router, prefix="/api", tags=["Authentication"])
 app.include_router(users.router, prefix="/api/users", tags=["Users"])
 app.include_router(posts.router, prefix="/api/posts", tags=["Posts"])
-app.include_router(user_posts.router, prefix="/api/users", tags=["User Posts"])

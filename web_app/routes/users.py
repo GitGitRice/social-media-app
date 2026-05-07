@@ -3,8 +3,8 @@ from sqlmodel import Session
 
 from web_app.database import get_session
 from web_app.auth import get_password_hash, get_current_user
-from web_app.models import UserCreate, ModelError, UserRead, User
-from web_app.crud import add_user_to_db, get_users_from_db
+from web_app.models import UserCreate, ModelError, UserRead, User, PostRead
+from web_app.crud import add_user_to_db, get_users_from_db, get_posts_by_user
 
 router = APIRouter()
 
@@ -52,3 +52,14 @@ def get_users(*, session: Session = Depends(get_session)) -> list[UserRead]:
     """
     users = get_users_from_db(session)
     return [UserRead.model_validate(user) for user in users]
+
+
+@router.get("/{user_id}/posts", response_model=list[PostRead])
+def read_user_posts(
+    user_id: int,
+    session: Session = Depends(get_session)
+):
+    """
+    Returns all posts associated with a specific user ID.
+    """
+    return get_posts_by_user(session, user_id)
