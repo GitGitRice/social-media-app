@@ -3,8 +3,15 @@ from sqlmodel import Session
 
 from web_app.database import get_session
 from web_app.auth import get_current_user
-from web_app.models import UserRead, User, PostRead, PostCreate, Post
-from web_app.crud import create_post, get_posts, get_post_by_id, get_posts_by_user, delete_post_from_db
+from web_app.models import UserRead, User, PostRead, PostCreate, Post, PostDetailsRead, CommentRead
+from web_app.crud import (
+    create_post,
+    get_posts,
+    get_post_by_id,
+    get_posts_by_user,
+    delete_post_from_db,
+    get_comments_for_post,
+)
 
 router = APIRouter()
 
@@ -43,7 +50,7 @@ def read_posts(
 
 
 # GET /posts/{post_id} (Fetch Single Post)
-@router.get("/{post_id}", response_model=PostRead)
+@router.get("/{post_id}", response_model=PostDetailsRead)
 def read_post(
     post_id: int,
     session: Session = Depends(get_session)
@@ -54,7 +61,13 @@ def read_post(
     post = get_post_by_id(session, post_id)
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
-    return post
+
+    post_details = PostDetailsRead.model_validate(post)
+    post_details.comments = [
+        CommentRead.model_validate(comment)
+        for comment in get_comments_for_post(session, post_id)
+    ]
+    return post_details
 
 
 @router.delete("/{post_id}")
