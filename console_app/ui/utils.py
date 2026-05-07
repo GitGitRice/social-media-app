@@ -36,14 +36,18 @@ def pause(message: str="Press any key to return to menu...") -> None:
         message=message
     ).ask()
 
-def print_error(message: str = "ERROR") -> None:
-    """prints the provided message in red as error message"""
-    console.print(f"[bold red]Error:[/bold red] {message}")
+def print_error(message: str, with_pause: bool = True) -> None:
+    """Prints a red error message. Optionally waits for user acknowledgement."""
+    console.print(f"\n[bold red]Error:[/bold red] {message}")
+    if with_pause:
+        pause("Press any key to try again...")
 
-def print_success(message: str = "SUCCESS") -> None:
-    """prints the provided message in green as success message"""
-    console.print(f"[bold green]Error:[/bold green] {message}")
+def print_success(message: str, with_pause: bool = True) -> None:
+    """Prints a green success message. Optionally waits for user acknowledgement."""
+    console.print(f"\n[bold green]Success:[/bold green] {message}")
+    if with_pause:
+        pause() # Uses the default "Press any key to return to menu..."
 
 def print_step(message: str) -> None:
-    """prints a message for the next step for the user"""
+    """Instructional step - usually doesn't need a pause."""
     console.print(f"[bold blue]❯[/bold blue] [white]{message}[/white]")
