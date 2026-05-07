@@ -24,3 +24,6 @@
     - adding comments, headlines
 - worked on merging pull requests for server-side authentication and user post functionality (Daniel)
 - worked on design of SQLModel, REST API, and first draft of UI dialog flow (Daniel)
+-Configured the FastAPI application on the EC2 instance to run as a persistent background service using systemd
+- Verified that the application remains reachable on port 8000 after closing the SSM session
+
