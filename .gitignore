@@ -11,3 +11,6 @@ __pycache__/
 
 # database files
 *.db
+
+# MCP files created on DT's computer
+embeddings.*
