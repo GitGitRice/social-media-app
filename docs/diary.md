@@ -27,3 +27,9 @@
 - Configured the FastAPI application on the EC2 instance to run as a persistent background service using systemd(Dominik)
 - Verified that the application remains reachable on port 8000 after closing the SSM session(Dominik)
 
+### Thu May 7th
+- Created pull request (Daniel)
+   - client side authentication
+   - client api migration from requests to httpx
+   - Refactored the UI and styled it for unified user experience
+
