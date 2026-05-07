@@ -56,6 +56,7 @@ def add_user_to_db(user: User, session: Session) -> User | ModelError:
         return user  # Success: Return the object directly
     except ValidationError as e:
         print(f"ValidationError: {e}")
+        session.rollback() # Add rollback for validation errors
         return ModelError.VALIDATION_ERROR
     except IntegrityError as e:
         print(f"IntegrityError: {e}")
