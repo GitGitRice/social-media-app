@@ -1,4 +1,4 @@
-from web_app.models import Post, ModelError
+from web_app.models import Post, ModelError, User
 from sqlmodel import Session, select, desc
 from pydantic import ValidationError
 from sqlalchemy.exc import IntegrityError
@@ -52,6 +52,16 @@ def get_post_by_id(session: Session, post_id: int) -> Post | None:
     Returns a single Post table model by its ID or None if not found.
     """
     return session.get(Post, post_id)
+
+
+def get_post_author(session: Session, post_id: int) -> User | None:
+    """
+    Returns the author of a specific Post or None if the post or author was not found.
+    """
+    post = session.get(Post, post_id)
+    if not post:
+        return None
+    return session.get(User, post.author_id)
 
 
 def get_posts_by_user(session: Session, user_id: int, offset: int = 0, limit: int = 10) -> list[Post]:

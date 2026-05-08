@@ -20,6 +20,9 @@ def register_screen() -> UIScreen:
         user_name = questionary.text(
             "User Name (Mandatory)", 
             validate=lambda text: True if len(text.strip()) > 0 else "User Name cannot be empty!"),
+        email = questionary.text(
+            "Email (Mandatory)",
+            validate=lambda text: True if "@" in text else "Please enter a valid email address."),
         first_name = questionary.text("First Name"),
         last_name = questionary.text("Last Name"),
         password = questionary.password(
@@ -39,6 +42,7 @@ def register_screen() -> UIScreen:
     # Create UserCreate object and add through api to server
     user = UserCreate(
         user_name=str(clean_answers.get("user_name")), 
+        email=str(clean_answers.get("email")),
         first_name=clean_answers.get("first_name"), 
         last_name=clean_answers.get("last_name"),
         password=str(clean_answers.get("password")), 

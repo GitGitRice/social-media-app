@@ -13,6 +13,7 @@ class UserBase(SQLModel):
     A data model with the basic user attributes.
     """
     user_name: str = Field(unique=True)
+    email: str = Field(unique=True, index=True)
     first_name: str | None = None
     last_name: str | None = None
     bio: str | None = None
@@ -60,6 +61,7 @@ class UserPatch(SQLModel):
     A data model with the attributes to be used for PATCH routes.
     """
     user_name: str | None = None
+    email: str | None = None
     first_name: str | None = None
     last_name: str | None = None
     bio: str | None = None
