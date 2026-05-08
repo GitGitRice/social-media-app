@@ -4,8 +4,8 @@ from typing import TYPE_CHECKING
 from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
-    from .post import Post
-    from .user import User
+    from .post_model import Post
+    from .user_model import User
 
 
 class CommentBase(SQLModel):
@@ -20,7 +20,10 @@ class Comment(CommentBase, table=True):
     Table model with the columns stored in db.
     """
     id: int | None = Field(default=None, primary_key=True)
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc),
+        index=True
+    )
     user_id: int = Field(foreign_key="user.id")
     post_id: int = Field(foreign_key="post.id")
 

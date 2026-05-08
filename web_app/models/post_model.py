@@ -2,12 +2,12 @@ from sqlmodel import SQLModel, Field, Relationship
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 
-from .comment import CommentRead
+from .comment_model import CommentRead
 from .like_model import Like
 
 if TYPE_CHECKING:
-    from .comment import Comment
-    from .user import User
+    from .comment_model import Comment
+    from .user_model import User
 
 
 class PostBase(SQLModel):

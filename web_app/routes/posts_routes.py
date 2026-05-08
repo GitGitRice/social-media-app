@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from sqlmodel import Session
 
 from web_app.database import get_session
 from web_app.auth import get_current_user
+from web_app.email import send_new_post_notification
 from web_app.models import UserRead, User, PostRead, PostCreate, Post, PostDetailsRead, CommentRead
 from web_app.crud import (
     create_post,
@@ -11,6 +12,7 @@ from web_app.crud import (
     get_posts_by_user,
     delete_post_from_db,
     get_comments_for_post,
+    get_followers_for_user,
 )
 
 router = APIRouter()
@@ -20,6 +22,7 @@ router = APIRouter()
 @router.post("", response_model=PostRead)
 def add_post(
     post: PostCreate,
+    background_tasks: BackgroundTasks,
     user: User = Depends(get_current_user),
     session: Session = Depends(get_session)
 ):
@@ -33,7 +36,17 @@ def add_post(
     if not user:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
 
-    return create_post(session=session, db_post=db_post)
+    result = create_post(session=session, db_post=db_post)
+    if isinstance(result, Post):
+        for follower in get_followers_for_user(session, user.id):
+            background_tasks.add_task(
+                send_new_post_notification,
+                follower.email,
+                result.id,
+                user.user_name,
+            )
+
+    return result
 
 
 # GET /posts (Global Feed)

@@ -3,9 +3,9 @@ from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .comment import Comment
-    from .post import Post
-    from .follow import Follow
+    from .comment_model import Comment
+    from .post_model import Post
+    from .follow_model import Follow
     from .like_model import Like
 
 
@@ -14,6 +14,7 @@ class UserBase(SQLModel):
     A data model with the basic user attributes.
     """
     user_name: str = Field(unique=True)
+    email: str = Field(unique=True, index=True)
     first_name: str | None = None
     last_name: str | None = None
     bio: str | None = None
@@ -62,6 +63,7 @@ class UserPatch(SQLModel):
     A data model with the attributes to be used for PATCH routes.
     """
     user_name: str | None = None
+    email: str | None = None
     first_name: str | None = None
     last_name: str | None = None
     bio: str | None = None
