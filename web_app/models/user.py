@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from .comment import Comment
     from .post import Post
 
 
@@ -24,6 +25,7 @@ class User(UserBase, table=True):
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     hashed_password: str
     posts: list["Post"] = Relationship(back_populates="author")
+    comments: list["Comment"] = Relationship(back_populates="user")
 
 
 class UserCreate(UserBase):
