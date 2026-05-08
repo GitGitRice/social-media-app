@@ -2,7 +2,10 @@ from sqlmodel import SQLModel, Field, Relationship
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 
+from .comment import CommentRead
+
 if TYPE_CHECKING:
+    from .comment import Comment
     from .user import User
 
 
@@ -29,6 +32,7 @@ class Post(PostBase, table=True):
 
     # Relationship: each post belongs to one author
     author: "User" = Relationship(back_populates="posts")
+    comments: list["Comment"] = Relationship(back_populates="post")
 
 
 # class PostCreate is not currently needed but could be used later on
@@ -46,3 +50,11 @@ class PostRead(PostBase):
     author_id: int
     id: int
     created_at: datetime
+
+
+class PostDetailsRead(PostRead):
+    """
+    A data model with nested details for a single post.
+    """
+    comments: list[CommentRead]
+    likes: int = 0

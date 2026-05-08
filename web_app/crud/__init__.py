@@ -19,6 +19,12 @@ from .post import (
     delete_post_from_db,
 )
 
+from .comment import (
+    add_comment,
+    get_comments_for_post,
+    get_comment_count,
+)
+
 __all__ = [
     # User CRUD
     "get_user_by_user_name",
@@ -32,4 +38,9 @@ __all__ = [
     "get_post_by_id",
     "get_posts_by_user",
     "delete_post_from_db",
+
+    # Comment CRUD
+    "add_comment",
+    "get_comments_for_post",
+    "get_comment_count",
 ]

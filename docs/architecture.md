@@ -23,26 +23,28 @@ graph TD
     end
 
     subgraph "Server Side (Web App)"
-        Main["Main<br/>API Gatekeeper"]
+        Main["Main<br/>FastAPI Entry Point"]
+        Routes["Routes<br/>API Endpoints"]
         Auth["Auth<br/>Security &amp; JWT"]
-        CRUD["CRUD<br/>Database Logic"]
-        DB["Database<br/>Connection"]
-        SQLite[["SQLite<br/>Stored Data"]]
+        CRUD["CRUD<br/>Database Operations"]
+        DB["Database<br/>Engine &amp; Session"]
+        SQLite[["SQLite<br/>database.db"]]
     end
 
     %% Interactions
     UI -->|1. Collects Input| CAPI
     CAPI -->|2. HTTP Request| Main
-    Main -->|3. Authenticates| Auth
-    Auth -->|4. Validates Credentials via| CRUD
-    Main -->|6. Routes Request| CRUD
+    Main -->|3. Forwards to| Routes
+    Routes -->|4. Authenticates via| Auth
+    Auth -->|5. Validates User via| CRUD
+    Routes -->|6. Executes| CRUD
     CRUD -->|7. Queries| DB
     DB -->|8. Reads/Writes| SQLite
     
     %% Shared Models
     UI -.->|Uses| Models
     CAPI -.->|Uses| Models
-    Main -.->|Uses| Models
+    Routes -.->|Uses| Models
     Auth -.->|Uses| Models
     CRUD -.->|Uses| Models
 ```
@@ -50,14 +52,15 @@ graph TD
 **Control Flow Description:**
 
 1.  **Client Input**: The `UI Module` collects user input and passes it to the `Client API`.
-2.  **HTTP Request**: The `Client API` sends an HTTP request to the `Main` API Gatekeeper on the server side.
-3.  **Authentication**: The `Main` module directs the request to the `Auth` module for authentication.
-4.  **Validation**: The `Auth` module validates the request, interacting with `CRUD` to verify user credentials or permissions.
-5.  **Request Routing**: After successful authentication, `Main` routes the request to the appropriate `CRUD` operation.
-6.  **Database Query**: The `CRUD` module performs queries on the `Database`.
-7.  **Data Operations**: The `Database` interacts with `SQLite` to read from or write data.
+2.  **HTTP Request**: The `Client API` sends an HTTP request to the `Main` entry point on the server side.
+3.  **Request Routing**: `Main` forwards the request to the appropriate `Routes` module.
+4.  **Authentication**: `Routes` uses the `Auth` module to authenticate the request (typically using FastAPI's dependency injection).
+5.  **Validation**: The `Auth` module validates the JWT and interacts with `CRUD` to verify the user's existence.
+6.  **CRUD Operation**: After authentication, the `Routes` module calls `CRUD` to execute the requested logic.
+7.  **Database Query**: The `CRUD` module performs queries using the `Database` engine and session.
+8.  **Data Operations**: The `Database` layer interacts with the `SQLite` file to read or write data.
 
-**Shared Models**: The `Pydantic Models` module provides data blueprints used by `UI`, `Main`, `Auth`, and `CRUD` to ensure consistent data structures across the application.
+**Shared Models**: The `Pydantic/SQLModel` module provides data blueprints used by both Client and Server to ensure consistent data structures and automated serialization/deserialization.
 
 ---
 
@@ -77,17 +80,18 @@ The most important "glue" in our project is the `models.py` file. It contains **
 *   **SQLite**: A simple file on your disk (`database.db`) that holds all our persistent data.
 
 ### How it's Organized
-1.  **Main**: The receptionist. It receives the HTTP request and decides which function should handle it.
-2.  **CRUD**: The worker. It contains the logic for **C**reating, **R**eading, **U**pdating, and **D**eleting data.
-3.  **Database**: The manager. It handles the low-level connection to the SQLite file.
-4.  **Auth**: Handles security, such as user login and password protection. It validates JWT tokens and hashes passwords.
+1.  **Main (web_app/main.py)**: The FastAPI application entry point. It sets up the lifespan events (like database table creation) and registers the API routers.
+2.  **Routes (web_app/routes/)**: Contains endpoint definitions for different resources (e.g., `auth.py`, `users.py`, `posts.py`). These modules handle incoming HTTP requests, perform validation, call business logic (CRUD), and return responses.
+3.  **Auth (web_app/auth.py)**: Handles security concerns, including user authentication, password hashing, JWT token creation, and validation. It uses FastAPI's dependency injection to secure endpoints.
+4.  **CRUD (web_app/crud/)**: Contains the core business logic for **C**reating, **R**eading, **U**pdating, and **D**eleting data for specific models (e.g., `user.py`, `post.py`). It interacts directly with the database session.
+5.  **Database (web_app/database.py)**: Manages the database engine and provides session dependency for FastAPI. It establishes the connection to the SQLite file.
 
 ---
 
 ## The Console App (Frontend)
 
 ### The Tech Stack
-*   **Requests**: The "telephone" the client uses to call the Server.
+*   **Httpx**: The "telephone" the client uses to call the Server.
 *   **Rich**: Makes the terminal look modern with colors, tables, and panels.
 *   **Questionary**: Handles interactive forms and menus (like choosing options with arrow keys).
 
@@ -190,3 +194,73 @@ sequenceDiagram
 4.  **User Retrieval**: The `Auth` module then calls the `CRUD` module's `get_user_by_id` function to fetch the complete `User` object from the `Database`.
 5.  **Request Authorization**: If the token is valid and the user exists, the `Auth` module returns the `User` object to `Server Main`.
 6.  **Response**: `Server Main` then processes the request (in this case, validates the `User` object into `UserRead`) and returns the relevant `UserRead` data back through the `Client API` to the `UI`, which displays it to the `User`.
+
+## The Client App's Internal Workings
+
+### Client-side Module Interaction: Client, UI, and State
+
+In the Console App, several modules collaborate to provide the user experience and interact with the backend.
+
+```mermaid
+graph TD
+    ClientApp["client.py<br/>Application Entry Point"]
+    State["state.py<br/>Session & Token Management"]
+    UIModule["ui/ui.py<br/>Render & Input Logic"]
+    ClientAPI["client_api.py<br/>Backend Communication"]
+
+    ClientApp -->|1. Initializes| State
+    ClientApp -->|2. Initializes & Calls| UIModule
+    UIModule -->|3. Displays Menus & Forms| ClientApp
+    UIModule -->|4. Collects User Input| ClientAPI
+    ClientAPI -->|5. Makes HTTP Requests| State
+    State -->|6. Manages Token & User Data| ClientAPI
+    ClientAPI -->|7. Returns Data| UIModule
+    UIModule -->|8. Updates Display| ClientApp
+```
+
+**Explanation of Client-side Module Interaction:**
+
+1.  **Application Entry Point (`client.py`)**: This is where the console application starts. It initializes the core components, including the `state` module for session management and the `ui` module for user interaction.
+2.  **State Management (`state.py`)**: The `state` module holds global application state, most importantly the `session.client` (an `httpx` client) configured with the base URL and, crucially, the access token for authenticated requests. It also stores the currently logged-in user's details.
+3.  **User Interface (`ui/ui.py`)**: This module is responsible for rendering menus, forms, and other visual elements using `Rich` and `Questionary`. It collects user input and orchestrates the flow of user interactions.
+4.  **Backend Communication (`client_api.py`)**: This module acts as the interface between the UI and the backend API. It contains functions that encapsulate HTTP requests to specific API endpoints, handling request data serialization and deserialization using Pydantic models. It relies on the `state.session.client` for making these requests, which automatically includes authentication headers if a token is present.
+
+### Client-side Access Token Management
+
+The client application manages the access token lifecycle for authenticated interactions with the server.
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant UILogin as UI (Login Screen)
+    participant CAPI as Client API (login_user)
+    participant State as SessionState (state.py)
+    participant Server as Server Main (/api/token)
+    participant ServerMe as Server Main (/api/users/me)
+
+    User->>UILogin: Enters username & password
+    UILogin->>CAPI: Calls login_user(username, password)
+    CAPI->>Server: HTTP POST /api/token (credentials)
+    Server-->>CAPI: Returns JWT Access Token
+    CAPI->>State: save_token(token)
+    State->>State: Stores token & updates HTTPX client headers
+    CAPI->>ServerMe: HTTP GET /api/users/me (with new token in header)
+    ServerMe-->>CAPI: Returns UserRead data
+    CAPI->>State: session.user = UserRead
+    State-->>CAPI:
+    CAPI-->>UILogin: Returns login success/failure
+    UILogin-->>User: Informs of login status
+```
+
+**Explanation of Client-side Access Token Management:**
+
+1.  **User Login**: The `User` provides credentials through the `UI`'s login screen.
+2.  **Initiate Login**: The `UI` calls the `client_api.login_user` function with the provided username and password.
+3.  **Token Request**: `login_user` constructs an HTTP POST request to the `/api/token` endpoint on the server, sending the credentials as form data.
+4.  **Token Reception**: If authentication is successful, the server returns a JWT Access Token.
+5.  **Token Storage**: `login_user` then calls `State.save_token(token)`. This crucial step stores the token within the `SessionState` object and, more importantly, configures the underlying `httpx.Client` instance (accessible via `session.client`) to include this token in the `Authorization` header for all subsequent requests.
+6.  **Fetch User Info**: Immediately after saving the token, `login_user` makes an authenticated HTTP GET request to `/api/users/me`. This request automatically includes the newly stored access token thanks to the `httpx.Client` configuration.
+7.  **User Data Storage**: The server returns the `UserRead` object for the authenticated user. This data is then stored in `State.session.user`.
+8.  **Login Result**: `login_user` returns `True` for success or `False` for failure to the `UI`, which then informs the user.
+
+By centralizing token management in `state.py` and utilizing `httpx`'s client capabilities, the `client_api.py` module can make authenticated requests without explicitly passing the token each time, simplifying the client-side communication logic.
