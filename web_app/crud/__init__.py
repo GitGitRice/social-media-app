@@ -15,6 +15,7 @@ from .post import (
     create_post,
     get_posts,
     get_post_by_id,
+    get_post_author,
     get_posts_by_user,
     delete_post_from_db,
 )
@@ -36,6 +37,7 @@ __all__ = [
     "create_post",
     "get_posts",
     "get_post_by_id",
+    "get_post_author",
     "get_posts_by_user",
     "delete_post_from_db",
 
