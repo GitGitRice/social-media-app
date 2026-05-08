@@ -72,3 +72,29 @@ def send_comment_notification(to_email: str, post_id: int, commenter_name: str) 
         f"Open the post here:\n{post_link}"
     )
     return send_email(to_email, subject, body)
+
+
+def send_new_post_notification(to_email: str, post_id: int, author_name: str) -> bool:
+    """
+    Sends an email notification for a new post from a followed user.
+    """
+    post_link = build_post_link(post_id)
+    subject = f"{author_name} created a new post"
+    body = (
+        f"{author_name} created a new post.\n\n"
+        f"Open the post here:\n{post_link}"
+    )
+    return send_email(to_email, subject, body)
+
+
+def send_like_notification(to_email: str, post_id: int, liker_name: str) -> bool:
+    """
+    Sends an email notification for a new like on a post.
+    """
+    post_link = build_post_link(post_id)
+    subject = "New like on your post"
+    body = (
+        f"{liker_name} liked your post.\n\n"
+        f"Open the post here:\n{post_link}"
+    )
+    return send_email(to_email, subject, body)
