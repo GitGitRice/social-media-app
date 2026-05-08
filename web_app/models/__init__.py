@@ -8,6 +8,7 @@ from .errors import ModelError
 from .user import User, UserBase, UserCreate, UserRead, UserPatch
 from .post import Post, PostBase, PostCreate, PostRead, PostDetailsRead
 from .comment import Comment, CommentBase, CommentCreate, CommentRead
+from .follow import Follow, FollowBase, FollowRead, FollowReadWithUsers, FollowCreate
 
 __all__ = [
     # Errors
@@ -25,6 +26,13 @@ __all__ = [
     "PostBase",
     "PostCreate",
     "PostRead",
+
+    # Follow models
+    "Follow",
+    "FollowBase",
+    "FollowRead",
+    "FollowReadWithUsers",
+    "FollowCreate",
     "PostDetailsRead",
 
     # Comment models

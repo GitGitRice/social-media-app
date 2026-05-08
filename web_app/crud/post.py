@@ -26,7 +26,10 @@ def create_post(session: Session, db_post: Post) -> Post | ModelError:
     except ValidationError as e:
         # Happens if the post content doesn't meet the schema requirements
         print(f"ValidationError: {e}")
+        session.rollback() # Add rollback for validation errors
         return ModelError.VALIDATION_ERROR
+        
+    
 
     except Exception as e:
         # Catch-all for other database issues
@@ -61,7 +64,6 @@ def get_posts_by_user(session: Session, user_id: int, offset: int = 0, limit: in
 
 # needs another verification, so that not everyone can delete posts, if they know the id
 # possibly users should only be able to delete their own posts
-# admins need to be able to delete posts, as well
 def delete_post_from_db(session: Session, post_id: int) -> bool:
     """
     Removes a Post record from the database.
