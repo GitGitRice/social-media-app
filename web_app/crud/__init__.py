@@ -9,6 +9,7 @@ from .user import (
     get_user_by_id,
     add_user_to_db,
     get_users_from_db,
+    get_followers_for_user,
 )
 
 from .post import (
@@ -32,6 +33,7 @@ __all__ = [
     "get_user_by_id",
     "add_user_to_db",
     "get_users_from_db",
+    "get_followers_for_user",
 
     # Post CRUD
     "create_post",
