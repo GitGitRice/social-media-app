@@ -1,6 +1,6 @@
 from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
-from sqlmodel import Session, select
+from sqlmodel import Session, select, col
 
 from web_app.models import Comment, ModelError, Post, User
 
@@ -53,7 +53,7 @@ def get_comments_for_post(session: Session, post_id: int) -> list[Comment]:
     statement = (
         select(Comment)
         .where(Comment.post_id == post_id)
-        .order_by(Comment.created)
+        .order_by(col(Comment.created_at))
     )
     return list(session.exec(statement).all())
 
@@ -62,5 +62,5 @@ def get_comment_count(session: Session, post_id: int) -> int:
     """
     Returns the total number of Comment records for a specific Post.
     """
-    statement = select(func.count(Comment.id)).where(Comment.post_id == post_id)
+    statement = select(func.count(col(Comment.id))).where(Comment.post_id == post_id)
     return session.exec(statement).one()

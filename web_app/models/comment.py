@@ -20,7 +20,7 @@ class Comment(CommentBase, table=True):
     Table model with the columns stored in db.
     """
     id: int | None = Field(default=None, primary_key=True)
-    created: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     user_id: int = Field(foreign_key="user.id")
     post_id: int = Field(foreign_key="post.id")
 
@@ -40,6 +40,6 @@ class CommentRead(CommentBase):
     A data model with the additional attributes to be returned for a comment.
     """
     id: int
-    created: datetime
+    created_at: datetime
     user_id: int
     post_id: int
