@@ -4,14 +4,14 @@ CRUD package for the social media app.
 This package contains all database CRUD operations organized by feature.
 """
 
-from .user import (
+from .user_crud import (
     get_user_by_user_name,
     get_user_by_id,
     add_user_to_db,
     get_users_from_db,
 )
 
-from .post import (
+from .post_crud import (
     create_post,
     get_posts,
     get_post_by_id,
@@ -19,7 +19,7 @@ from .post import (
     delete_post_from_db,
 )
 
-from .comment import (
+from .comment_crud import (
     add_comment,
     get_comments_for_post,
     get_comment_count,
