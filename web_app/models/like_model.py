@@ -4,8 +4,8 @@ from typing import TYPE_CHECKING
 from sqlmodel import Field, Relationship, SQLModel, UniqueConstraint
 
 if TYPE_CHECKING:
-    from .post import Post
-    from .user import User
+    from .post_model import Post
+    from .user_model import User
 
 class Like(SQLModel, table=True):
 
@@ -16,8 +16,8 @@ class Like(SQLModel, table=True):
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     # relationships
-    user: User = Relationship(back_populates="likes")
-    post: Post = Relationship(back_populates="likes")
+    user: "User" = Relationship(back_populates="likes")
+    post: "Post" = Relationship(back_populates="likes")
 
     # prevents duplicate likes
     __table_args__ = (
