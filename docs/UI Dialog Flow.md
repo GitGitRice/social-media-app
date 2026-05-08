@@ -1,7 +1,7 @@
 # UI Dialog Flow
 
 ```mermaid
-graph TD
+flowchart LR
     %% Main Entry Points
     Startup[App Startup]
     Welcome[Welcome Screen]
