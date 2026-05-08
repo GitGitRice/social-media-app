@@ -3,9 +3,9 @@ from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .comment import Comment
-    from .post import Post
-    from .follow import Follow
+    from .comment_model import Comment
+    from .post_model import Post
+    from .follow_model import Follow
 
 
 class UserBase(SQLModel):

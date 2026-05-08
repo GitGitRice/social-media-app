@@ -5,7 +5,7 @@ from web_app.auth import get_current_user
 from web_app.crud import add_comment, get_post_author
 from web_app.database import get_session
 from web_app.email import send_comment_notification
-from web_app.models import CommentBase, CommentRead, ModelError, User
+from web_app.models import CommentBase, CommentRead, ModelError, User, UserRead
 
 router = APIRouter()
 
@@ -21,9 +21,12 @@ def create_comment(
     """
     Creates a new comment for a specific post.
     """
+    # Validating to UserRead ensures the ID is an int and not None for the type checker
+    current_user = UserRead.model_validate(user)
+
     result = add_comment(
         session=session,
-        user_id=user.id,
+        user_id=current_user.id,
         post_id=post_id,
         content=comment.content,
     )
