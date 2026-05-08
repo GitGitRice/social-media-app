@@ -35,4 +35,7 @@
 - worked on follow N:N logic (Steven)
   - implemented models for Follow
   - implemented Relationship between User and Follow
-
+- Created pull request (Dominik)
+  - Added comment model, CRUD functions and API endpoint
+  - Updated post details to include nested comments
+  - Tested comment creation and retrieval locally
