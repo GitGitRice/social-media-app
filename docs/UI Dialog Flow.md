@@ -1,47 +1,63 @@
+# UI Dialog Flow
+
 ```mermaid
 graph TD
     %% Main Entry Points
+    Startup[App Startup]
     Welcome[Welcome Screen]
     
-    Welcome -- "User selects 'Register'" --> Registration
-    Welcome -- "User selects 'Login'" --> Login
+    Startup -- "Valid Token" --> MainMenu
+    Startup -- "No Token / Invalid" --> Welcome
+
+    Welcome -- "Register" --> Registration
+    Welcome -- "Login" --> Login
+    Welcome -- "Exit" --> ExitApp
     
     Registration[Registration]
     Login[Login]
     
     Registration -- "Successful registration" --> MainMenu
+    Registration -- "Cancelled / Failed" --> Welcome
+    
     Login -- "Successful login" --> MainMenu
+    Login -- "Cancelled / Failed" --> Welcome
     
     %% Main Menu Hub
     MainMenu[Main Menu]
     
+    MainMenu -- "Global Feed" --> GlobalFeed
+    MainMenu -- "Create Post" --> CreatePost
+    MainMenu -- "Member Dictionary" --> UserDirectory
     MainMenu -- "Logout" --> Welcome
-    MainMenu -- "View my feed" --> MyFeed
-    MainMenu -- "View global feed" --> GlobalFeed
-    MainMenu -- "Create a post" --> CreatePost
-    MainMenu -- "View my profile" --> MyProfile
+    MainMenu -- "Exit" --> ExitApp
     
     %% Feed Actions
-    MyFeed[My Feed]
     GlobalFeed[Global Feed]
+    GlobalFeed -- "Press any key" --> MainMenu
     
-    MyFeed -- "View post details" --> PostDetails
-    GlobalFeed -- "View post details" --> PostDetails
-    
-    %% Post Interactions
-    PostDetails[Post Details]
-    
-    PostDetails -- "View likes" --> ViewLikes
-    PostDetails -- "View comments" --> ViewComments
-    PostDetails -- "View user profile" --> OtherUserProfile
-    
-    ViewLikes -- "Back to post" --> PostDetails
-    ViewComments -- "Back to post" --> PostDetails
-    OtherUserProfile -- "Back to previous screen" --> PostDetails
-    
-    %% Profile Actions
-    CreatePost -- "Post created" --> MainMenu
-    
-    MyProfile -- "Edit profile" --> EditProfile
-    EditProfile -- "Profile updated" --> MyProfile
+    %% User Actions
+    UserDirectory[User Directory]
+    UserDirectory -- "Select User" --> UserDetails
+    UserDirectory -- "Back" --> MainMenu
+
+    UserDetails[User Details]
+    UserDetails -- "Back" --> UserDirectory
+
+    %% Post Actions
+    CreatePost[Create Post]
+    CreatePost -- "Post submitted / failed" --> MainMenu
+
+    ExitApp[Exit]
 ```
+
+## Information Items Displayed per Dialog
+
+- **Welcome Screen**: Application header, prompt to select an action ("Register", "Login", "Exit").
+- **Registration**: Form fields to collect User Name (mandatory), First Name, Last Name, Password (3-8 characters), and Biography. Displays registration success or cancellation/failure messages.
+- **Login**: Form fields to collect User Name and Password. Displays login success or cancellation/failure messages.
+- **Main Menu**: Application header, menu options ("Global Feed", "Create Post", "Member Dictionary", "Logout", "Exit").
+- **Global Feed**: A list of posts in the system. Each post displays its Content, Post ID, and Author ID. Shows an empty feed message if no posts exist. Prompts to press any key to return.
+- **User Directory**: A tabular list of all users displaying ID, Username, and Created At date. Prompts to select a specific user or return to the main menu.
+- **User Details**: Detailed profile of the selected user, including Username, First Name, Last Name, Bio, and Created At timestamp. Prompts to go back.
+- **Create Post**: Prompt to enter post content ("Was möchtest du teilen?"). Displays post creation success or error messages.
+- **Exit**: Terminates the application.
