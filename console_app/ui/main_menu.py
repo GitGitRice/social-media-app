@@ -15,6 +15,7 @@ def main_menu_screen() -> UIScreen:
         instruction=" ",
         choices=[
             "Global Feed",
+            "Following Feed",
             "Create Post",
             "Member Dictionary",
             "Logout",
@@ -24,6 +25,8 @@ def main_menu_screen() -> UIScreen:
     match answer:
         case "Global Feed":
             return UIScreen.GLOBAL_FEED
+        case "Following Feed":
+            return UIScreen.FOLLOWING_FEED
         case "Create Post":
             return UIScreen.CREATE_POST
         case "Member Dictionary":
