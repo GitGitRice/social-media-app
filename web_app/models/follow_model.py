@@ -21,15 +21,13 @@ class Follow(FollowBase, table=True):
     Table model with the columns stored in db.
     """
     id:int | None = Field(default=None, primary_key=True)
-       
-
     created_at: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc)
     )
     # This constraint ensures the combination of follower and followed is unique,
     # preventing a user from following the same person multiple times.
     __table_args__ = (
-        UniqueConstraint("follower_id", "followed_id", name="unique_follower_followed"),
+        UniqueConstraint("follower_id", "followed_id", name="unique_follower_followed")
     )
     follower: "User" = Relationship(
         back_populates="following",
