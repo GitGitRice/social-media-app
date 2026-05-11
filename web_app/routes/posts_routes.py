@@ -11,6 +11,7 @@ from web_app.crud import (
     get_post_by_id,
     get_posts_by_user,
     delete_post_from_db,
+    get_following_posts,
     get_comments_for_post,
     get_followers_for_user,
 )
@@ -92,3 +93,13 @@ def delete_post(post_id: int, session: Session = Depends(get_session)):
     if not success:
         raise HTTPException(status_code=404, detail="Post nicht gefunden")
     return {"detail": "Post erfolgreich gelöscht"}
+
+@router.get("/feed/following", response_model=list[PostRead])
+def read_following_feed(
+    offset: int = 0,
+    limit: int = 20,
+    current_user: User = Depends(get_current_user),
+    session: Session = Depends(get_session)
+):
+    """Returns a feed of posts from followed users."""
+    return get_following_posts(session, current_user.id, offset, limit)
