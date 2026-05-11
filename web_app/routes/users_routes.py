@@ -51,6 +51,8 @@ def get_users(*, session: Session = Depends(get_session)) -> list[UserRead]:
     TODO: No error handling.
     """
     users = get_users_from_db(session)
+    if isinstance(users, ModelError):
+        raise HTTPException(status_code=500, detail=ModelError.DATABASE_ERROR)
     return [UserRead.model_validate(user) for user in users]
 
 
