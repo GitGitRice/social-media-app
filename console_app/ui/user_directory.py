@@ -16,7 +16,7 @@ def user_directory_screen():
     if not users:
         console.print("\n[yellow]No Users found in the database.[/yellow]\n")
         questionary.press_any_key_to_continue().ask()
-        return "HOME"
+        return "BACK"
 
     # 1. Create and Display the Rich Table
     table = Table(title="", show_header=True, header_style="bold magenta")
@@ -46,7 +46,7 @@ def user_directory_screen():
 
     # 3. Logic handling
     if selection == "Back to Main Menu" or selection is None:
-        return "HOME"
+        return "BACK"
     
     # Find the specific user object that matches the selection
     selected_user = next(u for u in users if u.user_name == selection)
