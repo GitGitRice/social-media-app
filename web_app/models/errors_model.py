@@ -16,3 +16,11 @@ class ModelError(str, Enum):
     # Errors related to post CRUD
     POST_NOT_FOUND = "POST_NOT_FOUND"
     AUTHOR_NOT_FOUND = "AUTHOR_NOT_FOUND" # In case author_id is invalid
+    
+    # Errors related to Follow CRUD
+    FOLLOW_NOT_FOUND = "FOLLOW_NOT_FOUND"
+    CAN_NOT_FOLLOW_YOURSELF = "CAN_NOT_FOLLOW_YOURSELF"
+    CAN_NOT_UNFOLLOW_YOURSELF = "CAN_NOT_UNFOLLOW_YOURSELF"
+    ALREADY_FOLLOWING = "ALREADY_FOLLOWING"
+
+
