@@ -1,4 +1,4 @@
-from web_app.models import Post, ModelError, User
+from web_app.models import Post, ModelError, User, Follow
 from sqlmodel import Session, select, desc
 from pydantic import ValidationError
 from sqlalchemy.exc import IntegrityError
@@ -92,3 +92,14 @@ def delete_post_from_db(session: Session, post_id: int) -> bool:
         print(f"Fehler beim Löschen: {e}")
         session.rollback()
         return False
+
+def get_following_posts(session: Session, user_id: int, offset: int = 0, limit: int = 20) -> list[Post]:
+    """Returns posts created ONLY by users that the given user_id follows."""
+    statement = (
+        select(Post)
+        .join(Follow, Follow.followed_id == Post.author_id)
+        .where(Follow.follower_id == user_id)
+        .order_by(desc(Post.created_at))
+        .offset(offset).limit(limit)
+    )
+    return list(session.exec(statement).all())
