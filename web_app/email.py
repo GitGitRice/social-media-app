@@ -16,10 +16,10 @@ def email_notifications_enabled() -> bool:
 
 def build_post_link(post_id: int) -> str:
     """
-    Builds an absolute link to a post detail endpoint.
+    Builds an absolute link to the public post detail page.
     """
     app_base_url = os.getenv("APP_BASE_URL", "http://127.0.0.1:8000").rstrip("/")
-    return f"{app_base_url}/api/posts/{post_id}"
+    return f"{app_base_url}/static/post.html?post_id={post_id}"
 
 
 def send_email(to_email: str, subject: str, body: str) -> bool:
