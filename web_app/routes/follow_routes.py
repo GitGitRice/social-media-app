@@ -27,18 +27,12 @@ def create_follow(
         followed_id=user_id
     )
 
-    if result == ModelError.VALIDATION_ERROR:
-        raise HTTPException(status_code=400, detail="You cannot follow yourself.")
-    
-    if result == ModelError.USER_ID_NOT_FOUND:
-        raise HTTPException(status_code=404, detail="User not found.")
-        
-    if result == ModelError.DATABASE_ERROR:
-        # Usually means the unique constraint was hit
-        raise HTTPException(status_code=400, detail="Could not follow user. You may already be following them.")
-        
     if isinstance(result, ModelError):
-        raise HTTPException(status_code=500, detail=ModelError.DATABASE_ERROR)
+        # Format the Enum name for a better frontend error message
+        detail_message = str(result.value).replace("_", " ").title() # Convert "CAN_NOT_FOLLOW_YOURSELF" to "Can Not Follow Yourself"
+        if result == ModelError.ALREADY_FOLLOWING:
+            detail_message = "You are already following this user."
+        raise HTTPException(status_code=result.http_status, detail=detail_message)
 
     return result
 
@@ -51,6 +45,7 @@ def remove_follow(
 ):
     """
     Unfollows a specific user by their ID.
+    Returns 204 No Content on success.
     """
     result = unfollow_user(
         session=session, 
@@ -58,11 +53,9 @@ def remove_follow(
         followed_id=user_id
     )
 
-    if result == ModelError.FOLLOW_NOT_FOUND:
-        raise HTTPException(status_code=404, detail="Follow relationship not found.")
-    
-    if result == ModelError.DATABASE_ERROR:
-        raise HTTPException(status_code=500, detail="Internal database error.")
+    if isinstance(result, ModelError):
+        detail_message = str(result.value).replace("_", " ").title()
+        raise HTTPException(status_code=result.http_status, detail=detail_message)
 
     return
 
