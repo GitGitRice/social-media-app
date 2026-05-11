@@ -121,3 +121,55 @@ def remove_post(post_id: int) -> bool:
         return response.status_code == 200
     except httpx.ConnectError:
         return False
+    
+
+
+    #-------------------------- Follows ---------------------------------
+
+def follow_user(user_id: int) -> bool:
+    """Sends a POST request to follow a user."""
+    try:
+        response = session.client.post(f"/api/users/{user_id}/follow")
+        return response.status_code == 200
+    except httpx.ConnectError:
+        return False
+
+def unfollow_user(user_id: int) -> bool:
+    """Sends a DELETE request to unfollow a user."""
+    try:
+        # Our endpoint returns 204 No Content on success
+        response = session.client.delete(f"/api/users/{user_id}/follow")
+        return response.status_code == 204 
+    except httpx.ConnectError:
+        return False
+
+def check_is_following(user_id: int) -> bool:
+    """Checks if the logged-in user is currently following the target user."""
+    try:
+        response = session.client.get(f"/api/users/{user_id}/is_following")
+        if response.status_code == 200:
+            return response.json().get("is_following", False)
+        return False
+    except httpx.ConnectError:
+        return False
+    
+
+def get_followed_users(user_id: int) -> list[UserRead]:
+    """Fetches a list of users the target user follows."""
+    try:
+        response = session.client.get(f"/api/users/{user_id}/following")
+        if response.status_code == 200:
+            return [UserRead.model_validate(u) for u in response.json()]
+        return []
+    except httpx.ConnectError:
+        return []
+
+def get_following_posts(offset: int = 0, limit: int = 20) -> list[PostRead]:
+    """Fetches the authenticated user's following feed."""
+    try:
+        response = session.client.get("/api/posts/feed/following", params={"offset": offset, "limit": limit})
+        if response.status_code == 200:
+            return [PostRead.model_validate(p) for p in response.json()]
+        return []
+    except httpx.ConnectError:
+        return []
