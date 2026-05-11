@@ -19,6 +19,23 @@ from web_app.crud import (
 router = APIRouter()
 
 
+def build_post_details(session: Session, post: Post) -> PostDetailsRead:
+    """
+    Builds a post detail response without reading SQLModel relationships implicitly.
+    """
+    return PostDetailsRead(
+        content=post.content,
+        author_id=post.author_id,
+        id=post.id,
+        created_at=post.created_at,
+        comments=[
+            CommentRead.model_validate(comment)
+            for comment in get_comments_for_post(session, post.id)
+        ],
+        likes=len(post.likes),
+    )
+
+
 # POST /posts (Create Post)
 @router.post("", response_model=PostRead)
 def add_post(
@@ -67,6 +84,22 @@ def read_posts(
     """
     return get_posts(session, offset, limit)
 
+
+@router.get("/public/{post_id}", response_model=PostDetailsRead)
+def read_public_post(
+    post_id: int,
+    session: Session = Depends(get_session)
+):
+    """
+    Fetches a single post with comments for public, read-only email links.
+    """
+    post = get_post_by_id(session, post_id)
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+
+    return build_post_details(session, post)
+
+
 @router.post("/{post_id}/like")
 def toggle_like(
     post_id: int,
@@ -100,12 +133,7 @@ def read_post(
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
 
-    post_details = PostDetailsRead.model_validate(post)
-    post_details.comments = [
-        CommentRead.model_validate(comment)
-        for comment in get_comments_for_post(session, post_id)
-    ]
-    return post_details
+    return build_post_details(session, post)
 
 
 @router.delete("/{post_id}")
