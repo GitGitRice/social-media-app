@@ -6,6 +6,7 @@ if TYPE_CHECKING:
     from .comment_model import Comment
     from .post_model import Post
     from .follow_model import Follow
+    from .like_model import Like
 
 
 class UserBase(SQLModel):
@@ -28,6 +29,7 @@ class User(UserBase, table=True):
     hashed_password: str
     posts: list["Post"] = Relationship(back_populates="author")
     comments: list["Comment"] = Relationship(back_populates="user")
+    likes: list["Like"] = Relationship(back_populates="user")
 
     # Relationships for following/followers
     following: list["Follow"] = Relationship(

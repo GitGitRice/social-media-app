@@ -31,8 +31,8 @@ def create_comment(
         content=comment.content,
     )
 
-    if result == ModelError.POST_NOT_FOUND:
-        raise HTTPException(status_code=404, detail=ModelError.POST_NOT_FOUND)
+    if result == ModelError.POST_ID_NOT_FOUND:
+        raise HTTPException(status_code=404, detail=ModelError.POST_ID_NOT_FOUND)
 
     if result == ModelError.USER_ID_NOT_FOUND:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")

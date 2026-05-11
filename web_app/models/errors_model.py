@@ -14,5 +14,17 @@ class ModelError(str, Enum):
     USER_ID_NOT_FOUND = "USER_ID_NOT_FOUND"
 
     # Errors related to post CRUD
-    POST_NOT_FOUND = "POST_NOT_FOUND"
-    AUTHOR_NOT_FOUND = "AUTHOR_NOT_FOUND" # In case author_id is invalid
+    POST_ID_NOT_FOUND = "POST_ID_NOT_FOUND"
+
+    @property
+    def http_status(self) -> int:
+        """Maps model errors to HTTP status codes."""
+        mapping = {
+            self.VALIDATION_ERROR: 422,
+            self.USER_NAME_ALREADY_EXISTS: 400,
+            self.USER_NAME_NOT_FOUND: 404,
+            self.USER_ID_NOT_FOUND: 404,
+            self.POST_ID_NOT_FOUND: 404,
+            self.DATABASE_ERROR: 500,
+        }
+        return mapping.get(self, 500)
