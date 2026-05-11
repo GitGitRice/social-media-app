@@ -44,7 +44,11 @@ def add_user(
 
 
 @router.get("", response_model=list[UserRead])
-def get_users(*, session: Session = Depends(get_session)) -> list[UserRead]:
+def get_users(
+    *, 
+    user: User = Depends(get_current_user), 
+    session: Session = Depends(get_session)
+) -> list[UserRead]:
     """
     Returns a list of UserRead objects.
 
@@ -57,6 +61,7 @@ def get_users(*, session: Session = Depends(get_session)) -> list[UserRead]:
 @router.get("/{user_id}/posts", response_model=list[PostRead])
 def read_user_posts(
     user_id: int,
+    user: User = Depends(get_current_user),
     session: Session = Depends(get_session)
 ):
     """

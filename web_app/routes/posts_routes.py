@@ -54,6 +54,7 @@ def add_post(
 def read_posts(
     offset: int = 0,
     limit: int = 20,
+    user: User = Depends(get_current_user),
     session: Session = Depends(get_session)
 ):
     """
@@ -66,6 +67,7 @@ def read_posts(
 @router.get("/{post_id}", response_model=PostDetailsRead)
 def read_post(
     post_id: int,
+    user: User = Depends(get_current_user),
     session: Session = Depends(get_session)
 ):
     """
@@ -84,7 +86,11 @@ def read_post(
 
 
 @router.delete("/{post_id}")
-def delete_post(post_id: int, session: Session = Depends(get_session)):
+def delete_post(
+    post_id: int, 
+    user: User = Depends(get_current_user), 
+    session: Session = Depends(get_session)
+):
     """
     Deletes a specific post record from the database.
     """
