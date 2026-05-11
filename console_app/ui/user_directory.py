@@ -1,15 +1,14 @@
-from console_app.constants import UIScreen
 from console_app.client_api import get_users
-from console_app.state import session
+from .utils import print_header, clear_screen
+from .user_details import user_details_screen
 from rich.table import Table
 from rich.console import Console
 from rich.panel import Panel
 import questionary
-from .utils import print_header, clear_screen
 
 console = Console()
 
-def user_directory_screen() -> UIScreen:
+def user_directory_screen():
     """Shows list of all users and provides selection to user details"""
     clear_screen()
     print_header("Social Media App", "User Directory")
@@ -17,7 +16,7 @@ def user_directory_screen() -> UIScreen:
     if not users:
         console.print("\n[yellow]No Users found in the database.[/yellow]\n")
         questionary.press_any_key_to_continue().ask()
-        return UIScreen.MAIN_MENU
+        return "HOME"
 
     # 1. Create and Display the Rich Table
     table = Table(title="", show_header=True, header_style="bold magenta")
@@ -47,9 +46,9 @@ def user_directory_screen() -> UIScreen:
 
     # 3. Logic handling
     if selection == "Back to Main Menu" or selection is None:
-        return UIScreen.MAIN_MENU
+        return "HOME"
     
     # Find the specific user object that matches the selection
     selected_user = next(u for u in users if u.user_name == selection)
-    session.selected_user = selected_user
-    return UIScreen.USER_DETAILS
+
+    return lambda : user_details_screen(selected_user)

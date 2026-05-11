@@ -16,8 +16,6 @@ class AppSession:
         self.token = None
         self.client = httpx.Client(base_url=os.getenv("SERVER_URL", "http://127.0.0.1:8000"))
 
-        self.selected_user: UserRead | None = None # user selected for user_details_screen
-
     def save_token(self, token: str) -> None:
         self.token = token
         # Update the HTTP client headers for all future requests
