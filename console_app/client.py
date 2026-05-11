@@ -51,7 +51,7 @@ if __name__ == "__main__":
             ui_screen_stack = [result[1]]
         elif callable(result):
             # a new screen was returned. Add it as last screen to the stack
-            ui_screen_stack.append(result)
+            ui_screen_stack.append(result) # type: ignore TODO, but is very complex 
         else:
             print ("Error in menu selection")
             break
