@@ -49,18 +49,85 @@ access_token_available: bool = False
 # Rich console
 console = Console()
 
+def welcome_screen():
+    console.clear()
+    # print welcome message
+    console.print("Welcome")
+
+    # build selection menu
+    choice = questionary.select(
+        "Select Option",
+        choices = ["login", "register", "exit"]
+    ).ask()
+
+    if choice == "login":
+        return lambda: login_screen()
+    elif choice == "register":
+        return lambda: register_screen()
+    else:
+        return "EXIT"
+    
 def login_screen():
+    console.clear()
+    console.print ("Login")
     user: str = questionary.text("Username:").ask()
-    return ("AUTH_SUCCESS", lambda: main_menu_screen(user))
+
+    # simulate successfull vs. unsuccessfull login
+    choice = questionary.select(
+        "Simulate Login result",
+        choices=["successfull", "unsuccessfull", "Back to Welcome"]
+    ).ask()
+
+    if choice == "successfull":
+        return ("AUTH_SUCCESS", lambda: main_menu_screen(user))
+    elif choice == "unsuccessfull":
+        # registration unsuccessful or Back selected
+        questionary.press_any_key_to_continue(
+            message="Login unsuccessfull"
+        ).ask()
+        return "BACK"
+    else:
+        return "BACK"
+
+def register_screen():
+    console.clear()
+    console.print ("Register Screen")
+
+    # simulate registration
+    console.print("user registers")
+
+    choice = questionary.select(
+        "Simulate Registration Result",
+        choices=[
+            "Registration successful", 
+            "Registration not successfull", 
+            "Back to Welcome"
+        ]
+    ).ask()
+
+    if choice == "Registration successful":
+        questionary.press_any_key_to_continue(
+            message="Registration successfull"
+        ).ask()
+        return "BACK"
+    elif choice == "Registration not successfull":
+        questionary.press_any_key_to_continue(
+            message="Registration not successfull"
+        ).ask()
+        return "BACK"
+    else:
+        return "BACK"
 
 def main_menu_screen(user_name: str):
-
+    console.clear()
+    console.print ("Main Menu")
     # print user data
     console.print (f"user: {user_name}")
 
     # build selection menu
     choices = list(PLANET_DATA.keys())
     choices.append("Exit")
+    choices.append("Home")
     choice = questionary.select(
         "Select Planet:",
         choices= choices
@@ -69,11 +136,14 @@ def main_menu_screen(user_name: str):
     # interpret user selection
     if choice == "Exit":
         return "EXIT"
+    elif choice == "Home":
+        return "HOME"
     else:
         return lambda: planet_screen(user_name, choice)
 
 def planet_screen(user_name: str, planet_name: str):
-
+    console.clear()
+    console.print ("Planet Screen")
     # print user and planet data
     console.print (f"user: {user_name}")
     console.print (f"planet name: {planet_name}")
@@ -82,6 +152,7 @@ def planet_screen(user_name: str, planet_name: str):
     # build selection menu
     choices = [moon["name"] for moon in PLANET_DATA[planet_name]["moons"]]
     choices.append ("Back")
+    choices.append ("Home")
     choice = questionary.select(
         "Select Moon:",
         choices = choices
@@ -90,11 +161,14 @@ def planet_screen(user_name: str, planet_name: str):
     # interpret user selection
     if choice == "Back":
         return "BACK"
+    elif choice == "Home":
+        return "HOME"
     else:
         return lambda : moon_screen (user_name=user_name, planet_name=planet_name, moon_name=choice)
 
 def moon_screen (user_name, planet_name, moon_name):
-
+    console.clear()
+    console.print("Moon Screen")
     # print moon data
     console.print (f"user name: {user_name}")
     console.print (f"planet: {planet_name}")
@@ -115,7 +189,7 @@ if __name__ == "__main__":
     if access_token_available:
         ui_stack.append(main_menu)
     else:
-        ui_stack.append(login_screen)
+        ui_stack.append(welcome_screen)
 
     while True:
         # take the last screen from the stack
