@@ -1,3 +1,7 @@
+from typing import Any, cast
+# The 'cast' function is used here to help Pylance understand that the
+# comparison 'Follow.followed_id == User.id' should be treated as a SQLAlchemy expression, not a boolean.
+
 from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, select
 
@@ -88,7 +92,10 @@ def get_followed_users(session: Session, user_id: int) -> list[User]:
     """Returns a list of Users that the specified user is following."""
     statement = (
         select(User)
-        .join(Follow, Follow.followed_id == User.id)
+        # Using 'onclause' explicitly defines the join condition.
+        # 'cast(Any, ...)' is used to work around a Pylance type-checking limitation
+        # where it incorrectly interprets the SQLAlchemy expression as a boolean.
+        .join(Follow, onclause=cast(Any, Follow.followed_id == User.id))
         .where(Follow.follower_id == user_id)
     )
     return list(session.exec(statement).all())
