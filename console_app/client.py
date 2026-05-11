@@ -42,8 +42,8 @@ if __name__ == "__main__":
             # exit the app
             break
         elif result == "HOME":
-            # reset the stack to the first stack item item, deleting all intermediate screens
-            ui_screen_stack = [ui_screen_stack[0]]
+            # reset the stack to the main menu, deleting all intermediate screens
+            ui_screen_stack = [main_menu_screen]
         elif result == "LOGOUT":
             ui_screen_stack = [welcome_screen]
         elif isinstance (result, tuple) and result[0] == "AUTH_SUCCESS":
