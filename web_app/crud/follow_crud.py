@@ -35,7 +35,7 @@ def follow_user(session: Session, follower_id: int, followed_id: int) -> Follow 
         session.rollback()
         # Triggers if the unique constraint "unique_follower_followed" is violated
         return ModelError.ALREADY_FOLLOWING
-        session.rollback()
+   
 
     except Exception as e:
         print(f"Unexpected error: {e}")
