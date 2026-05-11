@@ -1,4 +1,4 @@
-from web_app.models import Post, ModelError, User
+from web_app.models import Post, ModelError, User, Like
 from sqlmodel import Session, select, desc
 from pydantic import ValidationError
 from sqlalchemy.exc import IntegrityError
@@ -21,7 +21,7 @@ def create_post(session: Session, db_post: Post) -> Post | ModelError:
         # Happens if the author_id does not exist in the User table (Foreign Key Constraint)
         print(f"IntegrityError: {e}")
         session.rollback()
-        return ModelError.AUTHOR_NOT_FOUND
+        return ModelError.USER_ID_NOT_FOUND
 
     except ValidationError as e:
         # Happens if the post content doesn't meet the schema requirements
@@ -92,3 +92,38 @@ def delete_post_from_db(session: Session, post_id: int) -> bool:
         print(f"Fehler beim Löschen: {e}")
         session.rollback()
         return False
+
+def toggle_like_on_post (user_id: int | None, post_id: int | None, session: Session) -> ModelError | bool:
+
+    if not user_id: return ModelError.USER_ID_NOT_FOUND
+    if not post_id: return ModelError.POST_ID_NOT_FOUND
+
+    try:
+        user_exists = session.get(User, user_id)
+        post_exists = session.get(Post, post_id)
+
+        if not user_exists:
+            return ModelError.USER_ID_NOT_FOUND
+        if not post_exists:
+            return ModelError.POST_ID_NOT_FOUND
+        
+        statement = select(Like).where(Like.user_id == user_id, Like.post_id == post_id)
+        like = session.exec(statement).first()
+        if like:
+            # unlike the post
+            print ("unlike")
+            session.delete(like)
+            new_state = False
+        else:
+            # like the post
+            print ("like")
+            session.add(Like(user_id=user_id, post_id=post_id))
+            new_state = True
+        session.commit()
+        return new_state
+    
+    except Exception as e:
+        session.rollback()
+        return ModelError.DATABASE_ERROR
+    
+    
