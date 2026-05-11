@@ -19,12 +19,21 @@ from .post_crud import (
     get_post_author,
     get_posts_by_user,
     delete_post_from_db,
+    get_following_posts,
 )
 
 from .comment_crud import (
     add_comment,
     get_comments_for_post,
     get_comment_count,
+)
+
+from .follow_crud import (
+    follow_user,
+    unfollow_user,
+    get_follow_relationship,
+    is_following,
+    get_followed_users,
 )
 
 __all__ = [
@@ -42,9 +51,18 @@ __all__ = [
     "get_post_author",
     "get_posts_by_user",
     "delete_post_from_db",
+    "get_following_posts",
+
 
     # Comment CRUD
     "add_comment",
     "get_comments_for_post",
     "get_comment_count",
+
+    # Follow CRUD
+    "follow_user",
+    "unfollow_user",
+    "get_follow_relationship",
+    "is_following",
+    "get_followed_users",
 ]
