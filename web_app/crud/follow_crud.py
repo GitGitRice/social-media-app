@@ -13,7 +13,7 @@ def follow_user(session: Session, follower_id: int, followed_id: int) -> Follow 
     """
     # Prevent users from following themselves
     if follower_id == followed_id:
-        return ModelError.VALIDATION_ERROR
+        return ModelError.CAN_NOT_FOLLOW_YOURSELF
 
     # Ensure the user being followed actually exists
     if not session.get(User, followed_id):
@@ -27,14 +27,15 @@ def follow_user(session: Session, follower_id: int, followed_id: int) -> Follow 
     try:
         session.add(db_follow)
         session.commit()
-        session.refresh(db_follow)
+        session.refresh(db_follow) # Load generated attributes (like ID and created_at)
         return db_follow
 
     except IntegrityError as e:
-        # Triggers if the unique constraint "unique_follower_followed" is violated
-        print(f"IntegrityError: {e}")
+        # Rollback the transaction to keep the session in a clean state
         session.rollback()
-        return ModelError.DATABASE_ERROR
+        # Triggers if the unique constraint "unique_follower_followed" is violated
+        return ModelError.ALREADY_FOLLOWING
+        session.rollback()
 
     except Exception as e:
         print(f"Unexpected error: {e}")
@@ -48,6 +49,7 @@ def unfollow_user(session: Session, follower_id: int, followed_id: int) -> bool 
 
     Returns True if successfully deleted, or a ModelError.
     """
+    # Look for the existing relationship before attempting deletion
     db_follow = get_follow_relationship(session, follower_id, followed_id)
 
     if not db_follow:
@@ -79,7 +81,7 @@ def is_following(session: Session, follower_id: int, followed_id: int) -> bool:
     """
     Checks if a follow relationship exists between two users.
     """
-    return bool(get_follow_relationship(session, follower_id, followed_id))
+    return bool(get_follow_relationship(session, follower_id, followed_id)) # Convert object/None to True/False
 
 
 def get_followed_users(session: Session, user_id: int) -> list[User]:
