@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 
 from .comment_model import CommentRead
+from .like_model import Like
 
 if TYPE_CHECKING:
     from .comment_model import Comment
@@ -33,6 +34,7 @@ class Post(PostBase, table=True):
     # Relationship: each post belongs to one author
     author: "User" = Relationship(back_populates="posts")
     comments: list["Comment"] = Relationship(back_populates="post")
+    likes: list["Like"] = Relationship(back_populates="post")
 
 
 # class PostCreate is not currently needed but could be used later on

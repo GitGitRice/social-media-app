@@ -21,7 +21,7 @@ def add_comment(
         return ModelError.USER_ID_NOT_FOUND
 
     if not session.get(Post, post_id):
-        return ModelError.POST_NOT_FOUND
+        return ModelError.POST_ID_NOT_FOUND
 
     db_comment = Comment(
         user_id=user_id,

@@ -9,7 +9,7 @@ from .user_crud import (
     get_user_by_id,
     add_user_to_db,
     get_users_from_db,
-    get_followers_for_user,
+    get_followers_for_user
 )
 
 from .post_crud import (
@@ -20,6 +20,7 @@ from .post_crud import (
     get_posts_by_user,
     delete_post_from_db,
     get_following_posts,
+    toggle_like_on_post
 )
 
 from .comment_crud import (
@@ -53,6 +54,7 @@ __all__ = [
     "delete_post_from_db",
     "get_following_posts",
 
+    "toggle_like_on_post",
 
     # Comment CRUD
     "add_comment",

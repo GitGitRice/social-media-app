@@ -11,7 +11,7 @@ console = Console()
 
 def user_directory_screen() -> UIScreen:
     """Shows list of all users and provides selection to user details"""
-
+    clear_screen()
     print_header("Social Media App", "User Directory")
     users = get_users()
     if not users:
@@ -20,7 +20,7 @@ def user_directory_screen() -> UIScreen:
         return UIScreen.MAIN_MENU
 
     # 1. Create and Display the Rich Table
-    table = Table(title="User Directory", show_header=True, header_style="bold magenta")
+    table = Table(title="", show_header=True, header_style="bold magenta")
     table.add_column("ID", style="dim")
     table.add_column("Username", style="cyan")
     table.add_column("Created At", justify="right")

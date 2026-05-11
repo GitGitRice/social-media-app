@@ -51,8 +51,8 @@ def register_screen() -> UIScreen:
     # Add user via client api to server
     created_user: UserRead | None = add_user(user)
     if created_user:
-        print_success(f"{created_user.user_name} successfully registered.")
-        return UIScreen.MAIN_MENU
+        print_success(f"{created_user.user_name} successfully registered.\nYou can now log in.")
+        return UIScreen.WELCOME
     else:
         print_error("Registration failed.")
         return UIScreen.WELCOME

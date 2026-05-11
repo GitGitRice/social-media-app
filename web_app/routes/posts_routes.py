@@ -4,7 +4,7 @@ from sqlmodel import Session
 from web_app.database import get_session
 from web_app.auth import get_current_user
 from web_app.email import send_new_post_notification
-from web_app.models import UserRead, User, PostRead, PostCreate, Post, PostDetailsRead, CommentRead
+from web_app.models import UserRead, User, PostRead, PostCreate, Post, PostDetailsRead, CommentRead, ModelError
 from web_app.crud import (
     create_post,
     get_posts,
@@ -14,6 +14,7 @@ from web_app.crud import (
     get_following_posts,
     get_comments_for_post,
     get_followers_for_user,
+    toggle_like_on_post
 )
 
 router = APIRouter()
@@ -39,6 +40,10 @@ def add_post(
 
     result = create_post(session=session, db_post=db_post)
     if isinstance(result, Post):
+        if not user.id:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, detail=ModelError.USER_ID_NOT_FOUND)
+        if not result.id:
+            raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, detail=ModelError.POST_ID_NOT_FOUND)
         for follower in get_followers_for_user(session, user.id):
             background_tasks.add_task(
                 send_new_post_notification,
@@ -55,6 +60,7 @@ def add_post(
 def read_posts(
     offset: int = 0,
     limit: int = 20,
+    user: User = Depends(get_current_user),
     session: Session = Depends(get_session)
 ):
     """
@@ -62,11 +68,30 @@ def read_posts(
     """
     return get_posts(session, offset, limit)
 
+@router.post("/{post_id}/like")
+def toggle_like(
+    post_id: int,
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user)):
+    """
+    Toggles the like status of the current_user on the post with post_id.
+
+    Returns the new status of the like.
+    """
+
+    if not current_user.id:
+        raise HTTPException(status_code=404, detail=ModelError.USER_ID_NOT_FOUND)
+    result = toggle_like_on_post(current_user.id, post_id, session)
+    if isinstance(result, ModelError):
+        raise HTTPException(status_code=result.http_status, detail=result.value)
+
+    return {"is_liked": result, "post_id": post_id}
 
 # GET /posts/{post_id} (Fetch Single Post)
 @router.get("/{post_id}", response_model=PostDetailsRead)
 def read_post(
     post_id: int,
+    user: User = Depends(get_current_user),
     session: Session = Depends(get_session)
 ):
     """
@@ -85,7 +110,11 @@ def read_post(
 
 
 @router.delete("/{post_id}")
-def delete_post(post_id: int, session: Session = Depends(get_session)):
+def delete_post(
+    post_id: int, 
+    user: User = Depends(get_current_user), 
+    session: Session = Depends(get_session)
+):
     """
     Deletes a specific post record from the database.
     """
