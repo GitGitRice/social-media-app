@@ -44,7 +44,7 @@ def get_moon_description (planet_name, moon_name):
 ui_stack = []
 
 # simulating if user has access token stored on disc
-access_token_available: bool = False
+access_token_available: bool = True
 
 # Rich console
 console = Console()
@@ -127,7 +127,6 @@ def main_menu_screen(user_name: str):
     # build selection menu
     choices = list(PLANET_DATA.keys())
     choices.append("Exit")
-    choices.append("Home")
     choice = questionary.select(
         "Select Planet:",
         choices= choices
@@ -136,8 +135,6 @@ def main_menu_screen(user_name: str):
     # interpret user selection
     if choice == "Exit":
         return "EXIT"
-    elif choice == "Home":
-        return "HOME"
     else:
         return lambda: planet_screen(user_name, choice)
 
@@ -187,7 +184,7 @@ def moon_screen (user_name, planet_name, moon_name):
 if __name__ == "__main__":
 
     if access_token_available:
-        ui_stack.append(main_menu)
+        ui_stack.append(lambda: main_menu_screen("user name from file"))
     else:
         ui_stack.append(welcome_screen)
 
