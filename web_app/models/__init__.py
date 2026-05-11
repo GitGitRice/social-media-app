@@ -28,6 +28,7 @@ __all__ = [
     "PostBase",
     "PostCreate",
     "PostRead",
+    "PostDetailsRead",
 
     # Follow models
     "Follow",
@@ -41,4 +42,7 @@ __all__ = [
     "CommentBase",
     "CommentCreate",
     "CommentRead",
+
+    # Like models
+    "Like",
 ]
