@@ -6,6 +6,7 @@ from .ui import (
     user_details_screen,
     user_directory_screen,
     global_feed_screen,
+    following_feed_screen,
     create_post_screen,
     end_app_screen
 )
@@ -48,6 +49,8 @@ if __name__ == "__main__":
                 next_screen = user_details_screen()
             case UIScreen.GLOBAL_FEED:
                 next_screen = global_feed_screen()
+            case UIScreen.FOLLOWING_FEED:
+                next_screen = following_feed_screen()
             case UIScreen.CREATE_POST:
                 next_screen = create_post_screen()
             case UIScreen.EXIT:
