@@ -168,7 +168,8 @@
       commentsSection.className = "comments";
 
       const commentsTitle = document.createElement("h2");
-      commentsTitle.textContent = `Comments (${comments.length})`;
+      const commentCount = Number.isInteger(post.comment_count) ? post.comment_count : comments.length;
+      commentsTitle.textContent = `Comments (${commentCount})`;
       commentsSection.appendChild(commentsTitle);
 
       if (comments.length === 0) {
