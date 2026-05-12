@@ -27,7 +27,7 @@ class Follow(FollowBase, table=True):
     # This constraint ensures the combination of follower and followed is unique,
     # preventing a user from following the same person multiple times.
     __table_args__ = (
-        UniqueConstraint("follower_id", "followed_id", name="unique_follower_followed")
+        UniqueConstraint("follower_id", "followed_id", name="unique_follower_followed"),
     )
     # Relationship to the user who is performing the follow action
     follower: "User" = Relationship(
