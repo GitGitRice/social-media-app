@@ -18,21 +18,18 @@ def create_follow(
     """
     Follows a specific user by their ID.
     """
-    # current_user.id is guaranteed to be an int when authenticated
-    follower_id = current_user.id
+    # Narrow the type so Pylance knows the ID is not None
+    auth_user = UserRead.model_validate(current_user)
     
     result = follow_user(
         session=session, 
-        follower_id=follower_id, 
+        follower_id=auth_user.id, 
         followed_id=user_id
     )
 
     if isinstance(result, ModelError):
-        # Format the Enum name for a better frontend error message
-        detail_message = str(result.value).replace("_", " ").title() # Convert "CAN_NOT_FOLLOW_YOURSELF" to "Can Not Follow Yourself"
-        if result == ModelError.ALREADY_FOLLOWING:
-            detail_message = "You are already following this user."
-        raise HTTPException(status_code=result.http_status, detail=detail_message)
+        # Use .value to provide the consistent error string (e.g., "ALREADY_FOLLOWING")
+        raise HTTPException(status_code=result.http_status, detail=result.value)
 
     return result
 
@@ -47,15 +44,17 @@ def remove_follow(
     Unfollows a specific user by their ID.
     Returns 204 No Content on success.
     """
+    auth_user = UserRead.model_validate(current_user)
+
     result = unfollow_user(
         session=session, 
-        follower_id=current_user.id, 
+        follower_id=auth_user.id, 
         followed_id=user_id
     )
 
     if isinstance(result, ModelError):
-        detail_message = str(result.value).replace("_", " ").title()
-        raise HTTPException(status_code=result.http_status, detail=detail_message)
+        # Standardized error reporting
+        raise HTTPException(status_code=result.http_status, detail=result.value)
 
     return
 
@@ -68,7 +67,9 @@ def check_follow_status(
     """
     Returns true if the logged-in user follows the target user.
     """
-    following = is_following(session, current_user.id, user_id)
+    auth_user = UserRead.model_validate(current_user)
+
+    following = is_following(session, auth_user.id, user_id) 
     return {"is_following": following}
 
 
