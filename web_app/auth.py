@@ -17,6 +17,7 @@ load_dotenv()
 SECRET_KEY = os.getenv("SECRET_KEY", "fallback-secret-for-local-dev") 
 ALGORITHM = os.getenv("ALGORITHM", "HS256")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "120"))
+PUBLIC_POST_TOKEN_EXPIRE_HOURS = int(os.getenv("PUBLIC_POST_TOKEN_EXPIRE_HOURS", "24"))
 
 # Tell FastAPI on which end point to look for the token
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/token")
@@ -45,6 +46,30 @@ def create_access_token(data: dict):
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
+
+
+def create_public_post_access_token(post_id: int) -> str:
+    """Creates a short-lived token for read-only access to a single post."""
+    expire = datetime.now(timezone.utc) + timedelta(hours=PUBLIC_POST_TOKEN_EXPIRE_HOURS)
+    payload = {
+        "scope": "public_post",
+        "post_id": post_id,
+        "exp": expire,
+    }
+    return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+
+
+def decode_public_post_access_token(token: str) -> int:
+    """Returns the post ID from a valid public post access token."""
+    payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+    if payload.get("scope") != "public_post":
+        raise JWTError("Invalid token scope")
+
+    post_id = payload.get("post_id")
+    if post_id is None:
+        raise JWTError("Missing post ID")
+
+    return int(post_id)
 
 def decode_token(token: str):
     # PyJWT requires the algorithms list for security

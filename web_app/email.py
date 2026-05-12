@@ -1,8 +1,11 @@
 import os
 import smtplib
 from email.message import EmailMessage
+from urllib.parse import urlencode
 
 from dotenv import load_dotenv
+
+from web_app.auth import create_public_post_access_token
 
 load_dotenv()
 
@@ -16,10 +19,12 @@ def email_notifications_enabled() -> bool:
 
 def build_post_link(post_id: int) -> str:
     """
-    Builds an absolute link to a post detail endpoint.
+    Builds an absolute link to the public post detail page.
     """
     app_base_url = os.getenv("APP_BASE_URL", "http://127.0.0.1:8000").rstrip("/")
-    return f"{app_base_url}/api/posts/{post_id}"
+    token = create_public_post_access_token(post_id)
+    query = urlencode({"token": token})
+    return f"{app_base_url}/static/post.html?{query}"
 
 
 def send_email(to_email: str, subject: str, body: str) -> bool:
