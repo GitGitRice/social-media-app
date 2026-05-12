@@ -4,7 +4,7 @@ from sqlmodel import Session
 
 from web_app.database import get_session
 from web_app.auth import decode_public_post_access_token, get_current_user
-from web_app.email import send_new_post_notification
+from web_app.email import send_like_notification, send_new_post_notification
 from web_app.models import UserRead, User, PostRead, PostCreate, Post, PostDetailsRead, CommentRead, ModelError
 from web_app.crud import (
     create_post,
@@ -14,6 +14,7 @@ from web_app.crud import (
     delete_post_from_db,
     get_comments_for_post,
     get_followers_for_user,
+    get_post_author,
     toggle_like_on_post
 )
 
@@ -109,6 +110,7 @@ def read_public_post(
 @router.post("/{post_id}/like")
 def toggle_like(
     post_id: int,
+    background_tasks: BackgroundTasks,
     session: Session = Depends(get_session),
     current_user: User = Depends(get_current_user)):
     """
@@ -122,6 +124,15 @@ def toggle_like(
     result = toggle_like_on_post(current_user.id, post_id, session)
     if isinstance(result, ModelError):
         raise HTTPException(status_code=result.http_status, detail=result.value)
+
+    post_author = get_post_author(session, post_id)
+    if result is True and post_author:
+        background_tasks.add_task(
+            send_like_notification,
+            post_author.email,
+            post_id,
+            current_user.user_name,
+        )
 
     return {"is_liked": result, "post_id": post_id}
 
