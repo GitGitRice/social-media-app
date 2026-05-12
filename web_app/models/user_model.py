@@ -55,6 +55,8 @@ class UserRead(UserBase):
     A data model with the additonal attributes to be returned for a user.
     """
     id: int
+    followers_count: int = 0
+    following_count: int = 0
     created_at: datetime
 
 
@@ -71,6 +73,4 @@ class UserPatch(SQLModel):
 
 
 class UserDetail(UserRead):
-    followers_count: int = 0
-    following_count: int = 0
     is_following: bool = False
