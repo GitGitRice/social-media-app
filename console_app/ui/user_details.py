@@ -1,6 +1,6 @@
 from console_app.constants import UIScreen
 from console_app.state import session
-from console_app.client_api import follow_user, unfollow_user, check_is_following, get_followed_users
+from console_app.client_api import follow_user, unfollow_user, get_followed_users, get_user_details
 from .utils import print_error, print_header, clear_screen, print_success, pause
 from rich.panel import Panel
 from rich.console import Console
@@ -16,6 +16,17 @@ def user_details_screen() -> UIScreen:
     
     if not session.selected_user:
         print_error("Error in Session: Cannot access selected_user.")
+        return UIScreen.USER_DIRECTORY
+
+    # We upgrade the session's selected_user from UserRead to UserDetail.
+    # UserDetail contains the 'is_following' field which is required for the UI logic.
+    # Fetching this here ensures we have the most up-to-date social state every time the screen loads.
+    user_detail = get_user_details(session.selected_user.id)
+    if user_detail:
+        session.selected_user = user_detail
+    else:
+        # If we cannot fetch the detailed profile, we shouldn't attempt to show Follow actions.
+        print_error("Could not fetch user profile details.")
         return UIScreen.USER_DIRECTORY
     
     detail_content = (
@@ -33,8 +44,9 @@ def user_details_screen() -> UIScreen:
     choices = ["Back"]
     
     if not is_own_profile:
-        is_following = check_is_following(session.selected_user.id)
-        if is_following:
+        # Instead of an extra API call (check_is_following), we use the field 
+        # provided in the UserDetail model directly.
+        if session.selected_user.is_following:
             choices.insert(0, "Unfollow")
         else:
             choices.insert(0, "Follow")
@@ -44,13 +56,19 @@ def user_details_screen() -> UIScreen:
             
     action = questionary.select("Actions:", choices=choices).ask()
 
+    # Handle user cancelling the selection (Ctrl+C) or choosing Back
+    if action is None or action == "Back":
+        return UIScreen.USER_DIRECTORY
+
     # Handle menu actions
     if action == "Follow":
         if follow_user(session.selected_user.id):
             print_success(f"You are now following {session.selected_user.user_name}!")
         else:
-            print_error("Could not follow user.")
-        return UIScreen.USER_DETAILS # Reload screen to update Follow -> Unfollow
+            # print_error provides a pause, ensuring the user sees the specific 
+            # backend error (e.g., ALREADY_FOLLOWING) before the screen reloads.
+            print_error("Follow action failed.")
+        return UIScreen.USER_DETAILS
         
     elif action == "Unfollow":
         if unfollow_user(session.selected_user.id):
