@@ -51,4 +51,4 @@ def user_directory_screen():
     # Find the specific user object that matches the selection
     selected_user = next(u for u in users if u.user_name == selection)
 
-    return lambda : user_details_screen(selected_user)
+    return lambda : user_details_screen(selected_user.id) # Pass user_id instead of UserRead object

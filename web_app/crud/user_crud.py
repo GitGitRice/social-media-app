@@ -1,3 +1,5 @@
+from typing import Any
+
 from web_app.models import Follow, User, ModelError
 from sqlmodel import Session, select
 from pydantic import ValidationError
@@ -77,15 +79,3 @@ def get_users_from_db(session: Session) -> list[User]:
 
     # cast to return value of function. SQLModel .all() is returning Sequence[User]
     return list(users)
-
-
-def get_followers_for_user(session: Session, user_id: int) -> list[User]:
-    """
-    Returns all users who follow the provided user id.
-    """
-    statement = (
-        select(User)
-        .join(Follow, Follow.follower_id == User.id)
-        .where(Follow.followed_id == user_id)
-    )
-    return list(session.exec(statement).all())

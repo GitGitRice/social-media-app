@@ -1,4 +1,6 @@
-from web_app.models import Post, ModelError, User, Like
+from typing import Any, cast
+
+from web_app.models import Post, ModelError, User, Follow, Like
 from sqlmodel import Session, select, desc
 from pydantic import ValidationError
 from sqlalchemy.exc import IntegrityError
@@ -43,8 +45,8 @@ def get_posts(session: Session, offset: int = 0, limit: int = 100) -> list[Post]
     Returns a list of Post table models from the db session with pagination.
     """
     statement = select(Post).offset(offset).limit(limit).order_by(desc(Post.created_at))
-    users = session.exec(statement).all()
-    return list(users)
+    posts = session.exec(statement).all()   # Änderung von users zu posts macht keinen Unterschied für den Code. Ist aber besser für das Verständnis
+    return list(posts)
 
 
 def get_post_by_id(session: Session, post_id: int) -> Post | None:
@@ -127,3 +129,13 @@ def toggle_like_on_post (user_id: int | None, post_id: int | None, session: Sess
         return ModelError.DATABASE_ERROR
     
     
+def get_following_posts(session: Session, user_id: int, offset: int = 0, limit: int = 20) -> list[Post]:
+    """Returns posts created ONLY by users that the given user_id follows."""
+    statement = (
+        select(Post)
+        .join(Follow, onclause=cast(Any, Follow.followed_id == Post.author_id))
+        .where(Follow.follower_id == user_id)
+        .order_by(desc(Post.created_at))
+        .offset(offset).limit(limit)
+    )
+    return list(session.exec(statement).all())

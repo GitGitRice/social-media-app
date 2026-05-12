@@ -1,5 +1,6 @@
 from console_app.state import session
 from .global_feed import global_feed_screen
+from .following_feed import following_feed_screen
 from .create_post import create_post_screen
 from .user_directory import user_directory_screen
 from .utils import print_header, clear_screen
@@ -16,6 +17,7 @@ def main_menu_screen():
         instruction=" ",
         choices=[
             "Global Feed",
+            "Following Feed",
             "Create Post",
             "Member Dictionary",
             "Logout",
@@ -25,6 +27,8 @@ def main_menu_screen():
     match answer:
         case "Global Feed":
             return global_feed_screen
+        case "Following Feed":
+            return following_feed_screen
         case "Create Post":
             return create_post_screen
         case "Member Dictionary":

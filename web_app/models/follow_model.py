@@ -21,8 +21,6 @@ class Follow(FollowBase, table=True):
     Table model with the columns stored in db.
     """
     id:int | None = Field(default=None, primary_key=True)
-       
-
     created_at: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc)
     )
@@ -31,10 +29,12 @@ class Follow(FollowBase, table=True):
     __table_args__ = (
         UniqueConstraint("follower_id", "followed_id", name="unique_follower_followed"),
     )
+    # Relationship to the user who is performing the follow action
     follower: "User" = Relationship(
         back_populates="following",
         sa_relationship_kwargs={"primaryjoin": "Follow.follower_id==User.id"}
     )
+    # Relationship to the user who is being followed
     followed: "User" = Relationship(
         back_populates="followers",
         sa_relationship_kwargs={"primaryjoin": "Follow.followed_id==User.id"}
@@ -53,6 +53,7 @@ class FollowReadWithUsers(FollowRead):
     A data model with the additional attributes to be returned for a follow relationship,
     including the full user objects.
     """
+    # These fields allow the API to return nested user details instead of just IDs
     follower: "UserRead" 
     followed: "UserRead"
 

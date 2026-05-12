@@ -2,7 +2,7 @@ import json
 import os
 import httpx
 from dotenv import load_dotenv
-from web_app.models import UserRead
+from web_app.models import UserRead, UserDetail
 
 load_dotenv()
 
@@ -15,6 +15,9 @@ class AppSession:
         self.user = None  # Stores the /users/me object
         self.token = None
         self.client = httpx.Client(base_url=os.getenv("SERVER_URL", "http://127.0.0.1:8000"))
+
+        # Using UserDetail instead of UserRead for the profile view.
+        # This ensures the UI can access fields like 'is_following' and follower counts.
 
     def save_token(self, token: str) -> None:
         self.token = token
