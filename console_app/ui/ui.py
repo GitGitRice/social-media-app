@@ -177,7 +177,7 @@ def add_post_ui(user_id: int) -> None:
     content = questionary.text("Was möchtest du teilen?").ask()
     if content:
         post_data = PostCreate(content=content)
-        if add_post(post_data, user_id):
+        if add_post(post_data):
             console.print("[green]Post erfolgreich veröffentlicht![/green]")
         else:
             console.print("[red]Fehler beim Posten.[/red]")

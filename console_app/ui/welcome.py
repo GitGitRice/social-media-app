@@ -1,8 +1,9 @@
-from console_app.constants import UIScreen
-from console_app.ui.utils import print_header, print_step,clear_screen
+from console_app.ui.utils import print_header, print_step,clear_screen, print_error
+from .login import login_screen
+from .register import register_screen
 import questionary
 
-def welcome_screen() -> UIScreen :
+def welcome_screen():
 
     clear_screen()
     print_header("Social Media App", "Welcome")
@@ -13,8 +14,12 @@ def welcome_screen() -> UIScreen :
     ).ask()
         
     if answer == "Register":
-        return UIScreen.REGISTER
+        return register_screen
     elif answer == "Login":
-        return UIScreen.LOGIN
+        return login_screen
+    elif answer == "Exit":
+        return "EXIT"
     else:
-        return UIScreen.EXIT
+        print_error ("Error in Menu Selection. Exiting App.")
+        return "EXIT"
+        

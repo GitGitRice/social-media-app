@@ -1,5 +1,4 @@
 from .utils import print_header, clear_screen, print_error, print_success
-from console_app.constants import UIScreen
 from web_app.models import UserCreate, UserRead
 from console_app.client_api import add_user
 import questionary
@@ -11,7 +10,7 @@ def validate_password(text):
         return "Password is too long (max 8 characters)"
     return True
 
-def register_screen() -> UIScreen:
+def register_screen():
     clear_screen()
     print_header ("Social Media App", "Register")
 
@@ -34,7 +33,7 @@ def register_screen() -> UIScreen:
     if not answers:
         # User pressed Ctrl+C and cancelled the form
         print_error("Registration cancelled.")
-        return UIScreen.WELCOME
+        return "BACK"
     
     # the form entries return "", if user just pressed enter, but UserCreate expects None, if no value was supplied. So, we translate empty strings "" to None
     clean_answers = {k: (v if v.strip() != "" else None) for k, v in answers.items()}
@@ -52,7 +51,7 @@ def register_screen() -> UIScreen:
     created_user: UserRead | None = add_user(user)
     if created_user:
         print_success(f"{created_user.user_name} successfully registered.\nYou can now log in.")
-        return UIScreen.WELCOME
+        return "BACK"
     else:
         print_error("Registration failed.")
-        return UIScreen.WELCOME
+        return "BACK"
