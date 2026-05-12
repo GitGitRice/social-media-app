@@ -1,13 +1,12 @@
-from console_app.constants import UIScreen
-import questionary
 from web_app.models import PostCreate
 from console_app.client_api import add_post
-from rich.console import Console
 from .utils import print_header, clear_screen
+import questionary
+from rich.console import Console
 
 console = Console()
 
-def create_post_screen() -> UIScreen:
+def create_post_screen():
     """
     Enables currently logged in user to post posts.
     """
@@ -21,4 +20,4 @@ def create_post_screen() -> UIScreen:
             console.print("[green]Post erfolgreich veröffentlicht![/green]")
         else:
             console.print("[red]Fehler beim Posten.[/red]")
-    return UIScreen.MAIN_MENU
+    return "HOME"

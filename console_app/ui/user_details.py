@@ -2,10 +2,11 @@ from console_app.constants import UIScreen
 from console_app.state import session
 from console_app.client_api import follow_user, unfollow_user, get_followed_users, get_user_details
 from .utils import print_error, print_header, clear_screen, print_success, pause
+from .utils import print_header, clear_screen
+from web_app.models import UserRead
 from rich.panel import Panel
 from rich.console import Console
 import questionary
-
 
 console = Console()
 
@@ -23,21 +24,21 @@ def user_details_screen() -> UIScreen:
     # Fetching this here ensures we have the most up-to-date social state every time the screen loads.
     user_detail = get_user_details(session.selected_user.id)
     if user_detail:
-        session.selected_user = user_detail
+        session.selected_user = user_detail # TODO get selected user from user_detail_screen
     else:
         # If we cannot fetch the detailed profile, we shouldn't attempt to show Follow actions.
         print_error("Could not fetch user profile details.")
         return UIScreen.USER_DIRECTORY
     
     detail_content = (
-        f"[bold]Username:[/bold] {session.selected_user.user_name}\n"
-        f"[bold]First Name:[/bold] {session.selected_user.first_name or 'N/A'}\n"
-        f"[bold]Last Name:[/bold] {session.selected_user.last_name or 'N/A'}\n"
-        f"[bold]Bio:[/bold] {session.selected_user.bio or 'No biography provided.'}\n"
-        f"[bold]Created:[/bold] {session.selected_user.created_at}"
+        f"[bold]Username:[/bold] {selected_user.user_name}\n"
+        f"[bold]First Name:[/bold] {selected_user.first_name or 'N/A'}\n"
+        f"[bold]Last Name:[/bold] {selected_user.last_name or 'N/A'}\n"
+        f"[bold]Bio:[/bold] {selected_user.bio or 'No biography provided.'}\n"
+        f"[bold]Created:[/bold] {selected_user.created_at}"
     )
     
-    console.print(Panel(detail_content, title=f"User Profile: {session.selected_user.user_name}", expand=False))
+    console.print(Panel(detail_content, title=f"User Profile: {selected_user.user_name}", expand=False))
     
     # Check if the logged-in user is viewing their own profile
     is_own_profile = session.user and session.user.get("id") == session.selected_user.id
@@ -89,4 +90,5 @@ def user_details_screen() -> UIScreen:
         pause()
         return UIScreen.USER_DETAILS
 
-    return UIScreen.USER_DIRECTORY
+    return "BACK"
+        

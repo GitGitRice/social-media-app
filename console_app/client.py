@@ -1,16 +1,6 @@
-from .ui import (
-    welcome_screen,
-    login_screen,
-    register_screen,
-    main_menu_screen,
-    user_details_screen,
-    user_directory_screen,
-    global_feed_screen,
-    following_feed_screen,
-    create_post_screen,
-    end_app_screen
-)
-from .constants import UIScreen
+from .ui import welcome_screen, main_menu_screen
+
+
 from .state import session
 from .client_api import get_my_user
 from web_app.models import UserRead
@@ -18,44 +8,50 @@ from web_app.models import UserRead
 # The main program, starting the main menu
 if __name__ == "__main__":
 
-    # Startup check, load token
+    # stack to hold ui screens
+    ui_screen_stack = []
+
+    # load token at application startup
     if session.load_token():
         try:
             # Try to fetch user data with the saved token
             user: UserRead | None = get_my_user()
             if user:
-                next_screen = UIScreen.MAIN_MENU
+                # We create a local alias to ensure that the lambda is called with not-None active_user
+                active_user: UserRead = user
+                ui_screen_stack = [main_menu_screen]
             else:
-                next_screen = UIScreen.WELCOME
+                ui_screen_stack = [welcome_screen]
         except:
-            next_screen = UIScreen.WELCOME
+            ui_screen_stack = [welcome_screen]
     else:
-        next_screen = UIScreen.WELCOME
+        ui_screen_stack = [welcome_screen]
 
     # Screen selection
     while True:
-        match next_screen:
-            case UIScreen.WELCOME:
-                next_screen = welcome_screen()
-            case UIScreen.REGISTER:
-                next_screen = register_screen()
-            case UIScreen.LOGIN:
-                next_screen = login_screen()
-            case UIScreen.MAIN_MENU:
-                next_screen = main_menu_screen()
-            case UIScreen.USER_DIRECTORY:
-                next_screen = user_directory_screen()
-            case UIScreen.USER_DETAILS:
-                next_screen = user_details_screen()
-            case UIScreen.GLOBAL_FEED:
-                next_screen = global_feed_screen()
-            case UIScreen.FOLLOWING_FEED:
-                next_screen = following_feed_screen()
-            case UIScreen.CREATE_POST:
-                next_screen = create_post_screen()
-            case UIScreen.EXIT:
-                end_app_screen()
-                break
-            case _:
-                print_error("Unavailable screen selected.")
-        
+
+        # take the screen from the stack (the last which was pushed to the stack)
+        current_screen = ui_screen_stack[-1]
+
+        # call this last screen
+        result = current_screen()
+        if result == "BACK":
+            # remove the last screen from stack
+            ui_screen_stack.pop()
+        elif result == "EXIT":
+            # exit the app
+            break
+        elif result == "HOME":
+            # reset the stack to the main menu, deleting all intermediate screens
+            ui_screen_stack = [main_menu_screen]
+        elif result == "LOGOUT":
+            ui_screen_stack = [welcome_screen]
+        elif isinstance (result, tuple) and result[0] == "AUTH_SUCCESS":
+            # reset the stack to the returned screen only. This is done after login to have only the home screen on the stack and BACK wouldnt work
+            ui_screen_stack = [result[1]]
+        elif callable(result):
+            # a new screen was returned. Add it as last screen to the stack
+            ui_screen_stack.append(result) # type: ignore TODO, but is very complex 
+        else:
+            print ("Error in menu selection")
+            break

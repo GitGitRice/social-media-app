@@ -1,10 +1,11 @@
-from console_app.constants import UIScreen
-from .utils import print_header, clear_screen
 from console_app.state import session
+from .global_feed import global_feed_screen
+from .create_post import create_post_screen
+from .user_directory import user_directory_screen
+from .utils import print_header, clear_screen
 import questionary
 
-
-def main_menu_screen() -> UIScreen:
+def main_menu_screen():
     """Displays the main menu of the console app"""
     clear_screen()
     print_header ("Social Media App", "Main Menu")
@@ -24,17 +25,17 @@ def main_menu_screen() -> UIScreen:
     
     match answer:
         case "Global Feed":
-            return UIScreen.GLOBAL_FEED
+            return global_feed_screen
         case "Following Feed":
-            return UIScreen.FOLLOWING_FEED
+            return following_feed_screen
         case "Create Post":
-            return UIScreen.CREATE_POST
+            return create_post_screen
         case "Member Dictionary":
-            return UIScreen.USER_DIRECTORY
+            return user_directory_screen
         case "Logout":  
             session.logout()
-            return UIScreen.WELCOME
+            return "EXIT"
         case "Exit":
-            return UIScreen.EXIT
+            return "EXIT"
         case _:
-            return UIScreen.MAIN_MENU
+            return "HOME"
