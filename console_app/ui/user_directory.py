@@ -46,7 +46,7 @@ def user_directory_screen():
 
     # 3. Logic handling
     if selection == "Back to Main Menu" or selection is None:
-        return "BACK"
+        return "HOME"
     
     # Find the specific user object that matches the selection
     selected_user = next(u for u in users if u.user_name == selection)
