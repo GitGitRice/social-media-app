@@ -61,9 +61,16 @@
     }
 
     .post-meta,
+    .post-stats,
     .comment-meta {
       color: var(--muted);
       font-size: 14px;
+    }
+
+    .post-stats {
+      margin-top: 10px;
+      color: var(--accent);
+      font-weight: 700;
     }
 
     .post-content {
@@ -152,6 +159,11 @@
       postContent.className = "post-content";
       postContent.textContent = post.content;
 
+      const postStats = document.createElement("div");
+      postStats.className = "post-stats";
+      const likeCount = Number.isInteger(post.likes) ? post.likes : 0;
+      postStats.textContent = `${likeCount} ${likeCount === 1 ? "like" : "likes"}`;
+
       const commentsSection = document.createElement("section");
       commentsSection.className = "comments";
 
@@ -186,7 +198,7 @@
       notice.className = "notice";
       notice.textContent = "This page is read-only. Commenting and liking still require logging in through the app.";
 
-      content.append(postMeta, postContent, commentsSection, notice);
+      content.append(postMeta, postContent, postStats, commentsSection, notice);
     }
 
     async function loadPost() {
