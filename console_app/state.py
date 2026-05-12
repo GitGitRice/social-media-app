@@ -18,7 +18,6 @@ class AppSession:
 
         # Using UserDetail instead of UserRead for the profile view.
         # This ensures the UI can access fields like 'is_following' and follower counts.
-        self.selected_user: UserDetail | None = None 
 
     def save_token(self, token: str) -> None:
         self.token = token

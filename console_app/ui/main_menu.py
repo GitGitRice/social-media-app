@@ -1,5 +1,6 @@
 from console_app.state import session
 from .global_feed import global_feed_screen
+from .following_feed import following_feed_screen
 from .create_post import create_post_screen
 from .user_directory import user_directory_screen
 from .utils import print_header, clear_screen

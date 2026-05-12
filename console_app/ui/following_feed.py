@@ -1,13 +1,14 @@
-from console_app.constants import UIScreen
 from console_app.client_api import get_following_posts
+from .utils import print_header, clear_screen
+
 from rich.console import Console
 from rich.panel import Panel
 import questionary
-from .utils import print_header, clear_screen
+
 
 console = Console()
 
-def following_feed_screen() -> UIScreen:
+def following_feed_screen():
     """
     Displays a personalized feed of posts from users the current user follows.
     """
@@ -26,4 +27,4 @@ def following_feed_screen() -> UIScreen:
     
     # Wait for user acknowledgment before returning to the main menu
     questionary.press_any_key_to_continue().ask()
-    return UIScreen.MAIN_MENU
+    return "HOME"
