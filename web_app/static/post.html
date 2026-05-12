@@ -128,7 +128,7 @@
   <script>
     const content = document.getElementById("content");
     const params = new URLSearchParams(window.location.search);
-    const postId = params.get("post_id");
+    const token = params.get("token");
 
     function formatDate(value) {
       if (!value) return "";
@@ -190,12 +190,12 @@
     }
 
     async function loadPost() {
-      if (!postId) {
-        content.innerHTML = '<p class="error">Missing post_id in the link.</p>';
+      if (!token) {
+        content.innerHTML = '<p class="error">Missing access token in the link.</p>';
         return;
       }
 
-      const response = await fetch(`/api/posts/public/${encodeURIComponent(postId)}`);
+      const response = await fetch(`/api/posts/public?token=${encodeURIComponent(token)}`);
       if (!response.ok) {
         content.innerHTML = '<p class="error">The post could not be loaded.</p>';
         return;

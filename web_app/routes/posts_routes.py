@@ -1,8 +1,9 @@
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, status
+from jose import JWTError
 from sqlmodel import Session
 
 from web_app.database import get_session
-from web_app.auth import get_current_user
+from web_app.auth import decode_public_post_access_token, get_current_user
 from web_app.email import send_new_post_notification
 from web_app.models import UserRead, User, PostRead, PostCreate, Post, PostDetailsRead, CommentRead, ModelError
 from web_app.crud import (
@@ -85,14 +86,19 @@ def read_posts(
     return get_posts(session, offset, limit)
 
 
-@router.get("/public/{post_id}", response_model=PostDetailsRead)
+@router.get("/public", response_model=PostDetailsRead)
 def read_public_post(
-    post_id: int,
+    token: str = Query(...),
     session: Session = Depends(get_session)
 ):
     """
-    Fetches a single post with comments for public, read-only email links.
+    Fetches a single post with comments for token-based, read-only email links.
     """
+    try:
+        post_id = decode_public_post_access_token(token)
+    except (JWTError, ValueError):
+        raise HTTPException(status_code=401, detail="Invalid or expired post link")
+
     post = get_post_by_id(session, post_id)
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
