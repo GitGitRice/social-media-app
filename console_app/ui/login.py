@@ -1,9 +1,11 @@
 from .utils import print_header, print_error, clear_screen
-from console_app.constants import UIScreen
-from console_app.client_api import login_user
+from console_app.client_api import login_user, get_my_user
+
+from .main_menu import main_menu_screen
+
 import questionary
 
-def login_screen() -> UIScreen:
+def login_screen():
     """Asks for username and password to login the user."""
     
     clear_screen()
@@ -19,10 +21,14 @@ def login_screen() -> UIScreen:
     if not answers:
         # User pressed Ctrl+C and cancelled the form
         print_error("Login cancelled.")
-        return UIScreen.WELCOME
+        return "BACK"
     
     if login_user(user_name=answers["user_name"], password=answers["password"]):
-        return UIScreen.MAIN_MENU
+        logged_in_user = get_my_user()
+        if not logged_in_user:
+            return "BACK"
+        
+        return main_menu_screen
     else:
         print_error("Username or Password wrong.", with_pause=True)
-        return UIScreen.WELCOME
+        return "BACK"
