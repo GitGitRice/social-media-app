@@ -41,7 +41,7 @@ def create_comment(
         raise HTTPException(status_code=500, detail=ModelError.DATABASE_ERROR)
 
     post_author = get_post_author(session, post_id)
-    if post_author and post_author.id != user.id:
+    if post_author:
         background_tasks.add_task(
             send_comment_notification,
             post_author.email,
