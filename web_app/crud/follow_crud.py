@@ -19,10 +19,16 @@ def follow_user(session: Session, follower_id: int, followed_id: int) -> Follow 
     if follower_id == followed_id:
         return ModelError.CAN_NOT_FOLLOW_YOURSELF
 
-    # Ensure the user being followed actually exists
-    if not session.get(User, followed_id):
-        return ModelError.USER_ID_NOT_FOUND
+    # We verify that both users involved in the relationship exist.
+    # While the follower_id usually comes from a trusted JWT, verifying both 
+    # here ensures database integrity at the CRUD level and prevents 
+    # Foreign Key constraint violations later.
+    follower_exists = session.get(User, follower_id)
+    followed_exists = session.get(User, followed_id)
 
+    if not follower_exists or not followed_exists:
+        return ModelError.USER_ID_NOT_FOUND
+    
     db_follow = Follow(
         follower_id=follower_id,
         followed_id=followed_id
@@ -97,5 +103,19 @@ def get_followed_users(session: Session, user_id: int) -> list[User]:
         # where it incorrectly interprets the SQLAlchemy expression as a boolean.
         .join(Follow, onclause=cast(Any, Follow.followed_id == User.id))
         .where(Follow.follower_id == user_id)
+    )
+    return list(session.exec(statement).all())
+
+
+def get_followers_for_user(session: Session, user_id: int) -> list[User]:
+    """
+    Returns all users who follow the provided user id.
+    Moving this here from user_crud.py keeps all 'Follow' relationship logic in one place.
+    """
+    statement = (
+        select(User)
+        # We join on the follower_id to find the people who started the relationship
+        .join(Follow, onclause=cast(Any, Follow.follower_id == User.id))
+        .where(Follow.followed_id == user_id)
     )
     return list(session.exec(statement).all())

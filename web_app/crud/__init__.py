@@ -9,7 +9,6 @@ from .user_crud import (
     get_user_by_id,
     add_user_to_db,
     get_users_from_db,
-    get_followers_for_user
 )
 
 from .post_crud import (
@@ -35,6 +34,7 @@ from .follow_crud import (
     get_follow_relationship,
     is_following,
     get_followed_users,
+    get_followers_for_user
 )
 
 __all__ = [
