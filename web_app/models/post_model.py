@@ -1,4 +1,5 @@
 from sqlmodel import SQLModel, Field, Relationship
+from sqlalchemy.ext.hybrid import hybrid_property
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 
@@ -15,7 +16,6 @@ class PostBase(SQLModel):
     Data model with the basic post attributes.
     """
     content: str
-
 
 
 class Post(PostBase, table=True):
@@ -36,6 +36,15 @@ class Post(PostBase, table=True):
     comments: list["Comment"] = Relationship(back_populates="post")
     likes: list["Like"] = Relationship(back_populates="post")
 
+    # Additional attributes
+    @property
+    def comments_count(self) -> int:
+        return len(self.comments) if self.comments else 0
+    
+    @property
+    def likes_count(self) -> int:
+        return len(self.likes) if self.likes else 0
+    
 
 # class PostCreate is not currently needed but could be used later on
 class PostCreate(PostBase):
@@ -52,6 +61,12 @@ class PostRead(PostBase):
     author_id: int
     id: int
     created_at: datetime
+    comments_count: int
+    likes_count: int
+
+    # allows Pydantic to validate SQLAlchemy models and hybrid properties directly by accessing them as object attributes.
+    class Config:
+        from_attributes = True
 
 
 class PostDetailsRead(PostRead):

@@ -72,5 +72,5 @@ class UserPatch(SQLModel):
     password: str | None = None
 
 
-class UserDetail(UserRead):
+class UserDetailsRead(UserRead):
     is_following: bool = False

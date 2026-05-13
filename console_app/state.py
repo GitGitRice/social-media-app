@@ -2,7 +2,7 @@ import json
 import os
 import httpx
 from dotenv import load_dotenv
-from web_app.models import UserRead, UserDetail
+from web_app.models import UserRead, UserDetailsRead
 
 load_dotenv()
 
@@ -12,7 +12,7 @@ class AppSession:
     """
     def __init__(self):
         self.token_file = ".session.json"
-        self.user = None  # Stores the /users/me object
+        self.user = None  # Stores the /users/me object # TODO remove this attribute
         self.token = None
         self.client = httpx.Client(base_url=os.getenv("SERVER_URL", "http://127.0.0.1:8000"))
 
