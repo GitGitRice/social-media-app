@@ -9,3 +9,4 @@ from .user_directory import user_directory_screen
 from .global_feed import global_feed_screen
 from .following_feed import following_feed_screen
 from .create_post import create_post_screen
+from .create_comment import create_comment_screen

@@ -1,5 +1,5 @@
 import httpx
-from web_app.models import UserCreate, UserRead, PostCreate, PostRead, UserDetailsRead, PostDetailsRead
+from web_app.models import UserCreate, UserRead, PostCreate, PostRead, UserDetailsRead, PostDetailsRead, CommentCreate
 from .state import session
 import os
 
@@ -131,7 +131,24 @@ def remove_post(post_id: int) -> bool:
     except httpx.ConnectError:
         return False
     
-
+def create_comment(post_id: int, comment_content: str) -> bool:
+    try:
+        comment = CommentCreate (content=comment_content, post_id=post_id)
+        response = session.client.post(
+            f"/api/posts/{post_id}/comment",
+            json=comment.model_dump()    
+        )
+        return response.status_code == 200
+    except httpx.ConnectError:
+        return False
+        
+def toggle_like(post_id):
+    try:
+        response = session.client.post(f"/api/posts/{post_id}/like")
+        if response.status_code == 200:
+            return True
+    except httpx.ConnectError:
+        return False
 
     #-------------------------- Follows ---------------------------------
 
