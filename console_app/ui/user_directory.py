@@ -1,7 +1,6 @@
 from console_app.client_api import get_users
 from .utils import print_header, clear_screen
 from .user_details import user_details_screen
-from rich.table import Table
 from rich.console import Console
 from rich.panel import Panel
 import questionary
@@ -18,20 +17,16 @@ def user_directory_screen():
         questionary.press_any_key_to_continue().ask()
         return "BACK"
 
-    # 1. Create and Display the Rich Table
-    table = Table(title="", show_header=True, header_style="bold magenta")
-    table.add_column("ID", style="dim")
-    table.add_column("Username", style="cyan")
-    table.add_column("Created At", justify="right")
-
+    # 1. Display each user as a Rich Panel
     for user in users:
-        table.add_row(
-            str(user.id), 
-            user.user_name, 
-            user.created_at.strftime("%Y-%m-%d") if user.created_at else "N/A"
+        created_date = user.created_at.strftime("%Y-%m-%d") if user.created_at else "N/A"
+        console.print(
+            Panel(
+                f"[cyan]ID:[/cyan] {user.id}\n[cyan]Username:[/cyan] {user.user_name}\n[cyan]Created At:[/cyan] {created_date}",
+                title=f"User: {user.user_name}",
+                subtitle=f"ID: {user.id}"
+            )
         )
-
-    console.print(table)
 
     # 2. Provide Interaction Options
     # We create a list of names for the menu, plus a "Back" option
