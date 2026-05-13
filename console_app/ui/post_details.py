@@ -26,9 +26,9 @@ def post_details_screen(selected_post_id):
     # build post content node with likes and comments counts
     post_content_node = selected_post.content
     if selected_post.comments_count > 0:
-        post_content_node = post_content_node + f"\n{Emoji.COMMENT} {selected_post.comments_count}"
+        post_content_node = post_content_node + f"\n{Emoji.COMMENT}({selected_post.comments_count})"
     if selected_post.likes_count > 0:
-        post_content_node = post_content_node + f"\n{Emoji.LIKE} {selected_post.likes_count}"
+        post_content_node = post_content_node + " "*3 + f"{Emoji.LIKE}({selected_post.likes_count})"
 
     # build tree view with post_content_node and comments as child
     tree = Tree(post_content_node)
@@ -58,7 +58,7 @@ def post_details_screen(selected_post_id):
         return lambda: create_comment_screen(selected_post_id)
     elif choice == "Like" or choice == "Unlike":
         toggle_like(selected_post_id)
-        print_success ("Uniked" if not user_liked_post else "Liked" + " Post")
+        print_success ("Liked" if not user_liked_post else "Unliked" + " Post")
         return "BACK"
     elif choice == "Back":
         return "BACK"
