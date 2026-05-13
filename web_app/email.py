@@ -103,3 +103,12 @@ def send_like_notification(to_email: str, post_id: int, liker_name: str) -> bool
         f"Open the post here:\n{post_link}"
     )
     return send_email(to_email, subject, body)
+
+
+def send_follow_notification(to_email: str, follower_name: str) -> bool:
+    """
+    Sends an email notification for a new follower.
+    """
+    subject = "New follower"
+    body = f"{follower_name} started following you."
+    return send_email(to_email, subject, body)
