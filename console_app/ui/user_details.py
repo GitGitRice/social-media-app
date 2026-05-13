@@ -1,7 +1,7 @@
 from console_app.state import session
 from console_app.client_api import follow_user, unfollow_user, get_followed_users, get_user_details
 from .utils import print_error, print_header, clear_screen, print_success, pause
-from web_app.models import UserDetail # Import UserDetail
+from web_app.models import UserDetailsRead
 from rich.panel import Panel
 from rich.console import Console
 import questionary
@@ -14,7 +14,7 @@ def user_details_screen(user_id: int): # Changed signature to accept user_id
     print_header("Social Media App", "User Details")
     
     # Fetch the UserDetail directly using the user_id
-    user_detail: UserDetail | None = get_user_details(user_id)
+    user_detail: UserDetailsRead | None = get_user_details(user_id)
     
     if not user_detail:
         # If we cannot fetch the detailed profile, we shouldn't attempt to show Follow actions.

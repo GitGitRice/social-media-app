@@ -3,7 +3,7 @@ from sqlmodel import Session
 
 from web_app.database import get_session
 from web_app.auth import get_password_hash, get_current_user
-from web_app.models import UserCreate, ModelError, UserRead, User, PostRead, UserDetail
+from web_app.models import UserCreate, ModelError, UserRead, User, PostRead, UserDetailsRead
 from web_app.crud import add_user_to_db, get_users_from_db,get_user_by_id, get_posts_by_user, get_posts_by_user, get_followers_for_user, get_followed_users, is_following
 
 router = APIRouter()
@@ -60,7 +60,7 @@ def get_users(
 
 
 
-@router.get("/{user_id}", response_model=UserDetail)
+@router.get("/{user_id}", response_model=UserDetailsRead)
 def read_user(
     user_id: int,
     current_user: User = Depends(get_current_user),
@@ -74,7 +74,15 @@ def read_user(
     if isinstance(db_user, ModelError):
         raise HTTPException(status_code=404, detail="User not found")
     
-    return enrich_user_detail(db_user, current_user.id, session)
+    # Create the detailed model base
+    user_detail = UserDetailsRead.model_validate(db_user)
+    
+    # Enrich with social data from follow_crud.py
+    user_detail.followers_count = len(get_followers_for_user(session, user_id))
+    user_detail.following_count = len(get_followed_users(session, user_id))
+    user_detail.is_following = is_following(session, current_user.id, user_id)
+    
+    return user_detail
 
 
 @router.get("/{user_id}/posts", response_model=list[PostRead])
