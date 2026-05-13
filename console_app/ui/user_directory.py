@@ -19,6 +19,7 @@ def user_directory_screen():
     # 1. Build multiline choices for the selection menu
     choices = []
     for user in users:
+        # 'user' is now a UserDetail object containing all counts and social status
         created_date = user.created_at.strftime("%Y-%m-%d") if user.created_at else "N/A"
         
         # Determine status icons based on relationship direction
