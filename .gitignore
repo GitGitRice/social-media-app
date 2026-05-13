@@ -17,3 +17,8 @@ embeddings.*
 
 # The access token of the console app
 .session.json
+
+
+
+GEMINI.md
+social-media-app.code-workspace

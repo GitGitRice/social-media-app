@@ -1,5 +1,5 @@
 import httpx
-from web_app.models import UserCreate, UserRead, PostCreate, PostRead
+from web_app.models import UserCreate, UserRead, PostCreate, PostRead, UserDetail
 from .state import session
 import os
 
@@ -48,7 +48,6 @@ def get_my_user() -> UserRead | None:
             return UserRead.model_validate(response.json())
     except httpx.ConnectError:
         return None
-        r
 
 def add_user(user: UserCreate) -> UserRead | None:
     """Sends a UserCreate object and returns a UserRead object."""
@@ -121,3 +120,80 @@ def remove_post(post_id: int) -> bool:
         return response.status_code == 200
     except httpx.ConnectError:
         return False
+    
+
+
+    #-------------------------- Follows ---------------------------------
+
+def get_user_details(user_id: int) -> UserDetail | None:
+    """
+    Fetches full user details, including social status (is_following).
+    This should be used when rendering the profile screen.
+    """
+    try:
+        response = session.client.get(f"/api/users/{user_id}")
+        if response.status_code == 200:
+            return UserDetail.model_validate(response.json())
+        return None
+    except httpx.ConnectError:
+        return None
+
+def follow_user(user_id: int) -> bool:
+    """Sends a POST request to follow a user."""
+    try:
+        response = session.client.post(f"/api/users/{user_id}/follow")
+        
+        if response.status_code == 200:
+            return True
+        
+        # Handle business logic errors (e.g., FOLLOW_EXISTS) by logging the detail.
+        # This allows the UI/User to understand why the action failed.
+        print(f"Follow failed: {response.json().get('detail', 'Unknown error')}")
+        return False
+    except httpx.ConnectError:
+        return False
+
+def unfollow_user(user_id: int) -> bool:
+    """Sends a DELETE request to unfollow a user."""
+    try:
+        # Our endpoint returns 204 No Content on success
+        response = session.client.delete(f"/api/users/{user_id}/follow")
+        
+        if response.status_code == 204:
+            return True
+            
+        print(f"Unfollow failed: {response.json().get('detail', 'Unknown error')}")
+        return False 
+    except httpx.ConnectError:
+        return False
+
+def check_is_following(user_id: int) -> bool:
+    """Checks if the logged-in user is currently following the target user."""
+    try:
+        response = session.client.get(f"/api/users/{user_id}/is_following")
+        if response.status_code == 200:
+            return response.json().get("is_following", False)
+        return False
+    except httpx.ConnectError:
+        return False
+    
+
+def get_followed_users(user_id: int) -> list[UserRead]:
+    """Fetches a list of users the target user follows."""
+    try:
+        response = session.client.get(f"/api/users/{user_id}/following")
+        if response.status_code == 200:
+            return [UserRead.model_validate(u) for u in response.json()]
+        return []
+    except httpx.ConnectError:
+        return []
+
+def get_following_posts(offset: int = 0, limit: int = 20) -> list[PostRead]:
+    """Fetches the authenticated user's following feed."""
+    try:
+        response = session.client.get("/api/posts/feed/following", params={"offset": offset, "limit": limit})
+        if response.status_code == 200:
+            return [PostRead.model_validate(p) for p in response.json()]
+        return []
+    except httpx.ConnectError:
+        return []

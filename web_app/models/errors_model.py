@@ -16,6 +16,13 @@ class ModelError(str, Enum):
     # Errors related to post CRUD
     POST_ID_NOT_FOUND = "POST_ID_NOT_FOUND"
 
+        # Errors related to Follow CRUD
+    FOLLOW_NOT_FOUND = "FOLLOW_NOT_FOUND"
+    CAN_NOT_FOLLOW_YOURSELF = "CAN_NOT_FOLLOW_YOURSELF"
+    CAN_NOT_UNFOLLOW_YOURSELF = "CAN_NOT_UNFOLLOW_YOURSELF"
+    ALREADY_FOLLOWING = "ALREADY_FOLLOWING"
+
+
     @property
     def http_status(self) -> int:
         """Maps model errors to HTTP status codes."""
@@ -24,7 +31,12 @@ class ModelError(str, Enum):
             self.USER_NAME_ALREADY_EXISTS: 400,
             self.USER_NAME_NOT_FOUND: 404,
             self.USER_ID_NOT_FOUND: 404,
+            self.FOLLOW_NOT_FOUND: 404,
+            self.CAN_NOT_FOLLOW_YOURSELF: 400,
+            self.CAN_NOT_UNFOLLOW_YOURSELF: 400,
+            self.ALREADY_FOLLOWING: 409, # Conflict, as the resource (follow) already exists
             self.POST_ID_NOT_FOUND: 404,
             self.DATABASE_ERROR: 500,
         }
         return mapping.get(self, 500)
+    
