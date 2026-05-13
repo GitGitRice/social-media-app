@@ -10,7 +10,7 @@ from .post_model import Post, PostBase, PostCreate, PostRead, PostDetailsRead
 from .comment_model import Comment, CommentBase, CommentCreate, CommentRead
 from .follow_model import Follow, FollowBase, FollowRead, FollowReadWithUsers, FollowCreate
 
-from .like_model import Like
+from .like_model import Like, LikeRead
 
 __all__ = [
     # Errors
@@ -45,5 +45,6 @@ __all__ = [
     "CommentRead",
 
     # Like models
-    "Like",
+    "LikeRead",
+    "Like"
 ]
