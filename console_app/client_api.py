@@ -1,5 +1,5 @@
 import httpx
-from web_app.models import UserCreate, UserRead, PostCreate, PostRead, UserDetail
+from web_app.models import UserCreate, UserRead, PostCreate, PostRead, UserDetailsRead, PostDetailsRead
 from .state import session
 import os
 
@@ -102,6 +102,9 @@ def get_posts(offset: int = 0, limit: int = 20) -> list[PostRead]:
         return []
     except httpx.ConnectError:
         return []
+    
+#def get_post(post_id: int ) -> PostDetailsRead:
+#    return None
 
 def get_user_posts(user_id: int) -> list[PostRead]:
     """Fetches all posts of a specific user."""
@@ -125,7 +128,7 @@ def remove_post(post_id: int) -> bool:
 
     #-------------------------- Follows ---------------------------------
 
-def get_user_details(user_id: int) -> UserDetail | None:
+def get_user_details(user_id: int) -> UserDetailsRead | None:
     """
     Fetches full user details, including social status (is_following).
     This should be used when rendering the profile screen.
@@ -133,7 +136,7 @@ def get_user_details(user_id: int) -> UserDetail | None:
     try:
         response = session.client.get(f"/api/users/{user_id}")
         if response.status_code == 200:
-            return UserDetail.model_validate(response.json())
+            return UserDetailsRead.model_validate(response.json())
         return None
     except httpx.ConnectError:
         return None
