@@ -43,21 +43,21 @@ def add_user(
     return UserRead.model_validate(result)
 
 
-@router.get("", response_model=list[UserRead])
+@router.get("", response_model=list[UserDetail])
 def get_users(
     *, 
     user: User = Depends(get_current_user), 
     session: Session = Depends(get_session)
-) -> list[UserRead]:
+) -> list[UserDetail]:
     """
-    Returns a list of UserRead objects.
-
-    TODO: No error handling.
+    Returns a list of UserDetail objects, enriched with social data.
     """
     users = get_users_from_db(session)
     if isinstance(users, ModelError):
         raise HTTPException(status_code=500, detail=ModelError.DATABASE_ERROR)
-    return [UserRead.model_validate(user) for user in users]
+    
+    return [enrich_user_detail(u, user.id, session) for u in users]
+
 
 
 @router.get("/{user_id}", response_model=UserDetailsRead)
@@ -74,15 +74,7 @@ def read_user(
     if isinstance(db_user, ModelError):
         raise HTTPException(status_code=404, detail="User not found")
     
-    # Create the detailed model base
-    user_detail = UserDetailsRead.model_validate(db_user)
-    
-    # Enrich with social data from follow_crud.py
-    user_detail.followers_count = len(get_followers_for_user(session, user_id))
-    user_detail.following_count = len(get_followed_users(session, user_id))
-    user_detail.is_following = is_following(session, current_user.id, user_id)
-    
-    return user_detail
+    return enrich_user_detail(db_user, current_user.id, session)
 
 
 @router.get("/{user_id}/posts", response_model=list[PostRead])
@@ -95,3 +87,18 @@ def read_user_posts(
     Returns all posts associated with a specific user ID.
     """
     return get_posts_by_user(session, user_id)
+
+
+def enrich_user_detail(db_user: User, current_user_id: int, session: Session) -> UserDetail:
+    """
+    Helper to populate UserDetail fields from database relationships.
+    """
+    user_detail = UserDetail.model_validate(db_user)
+    
+    user_detail.followers_count = len(db_user.followers)
+    user_detail.following_count = len(db_user.following)
+    user_detail.post_count = len(db_user.posts)
+    user_detail.is_following = is_following(session, current_user_id, db_user.id)
+    user_detail.follows_you = is_following(session, db_user.id, current_user_id)
+    
+    return user_detail

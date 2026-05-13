@@ -65,13 +65,13 @@ def add_user(user: UserCreate) -> UserRead | None:
         print("Network Error: Could not connect to server.")
         return None
 
-def get_users() -> list[UserRead]:
-    """Returns a list of UserRead objects."""
+def get_users() -> list[UserDetail]:
+    """Returns a list of UserDetail objects."""
     try:
         response = session.client.get("/api/users")
         if response.status_code == 200:
             # validate JSON response into UserRead object
-            return [UserRead.model_validate(u) for u in response.json()]
+            return [UserDetail.model_validate(u) for u in response.json()]
         return []
     except httpx.ConnectError:
         return []

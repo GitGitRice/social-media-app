@@ -70,7 +70,10 @@ class UserPatch(SQLModel):
     last_name: str | None = None
     bio: str | None = None
     password: str | None = None
+   
 
 
 class UserDetailsRead(UserRead):
-    is_following: bool = False
+    is_following: bool = False  # TODO ask wether this part should be in UserRead or UserDetail, since it is only relevant for the user directory and user details screens, but not for the followers/following screens.
+    follows_you: bool = False
+    post_count: int = 0

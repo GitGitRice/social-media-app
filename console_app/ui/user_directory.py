@@ -16,13 +16,20 @@ def user_directory_screen():
         console.print("\n[yellow]No Users found in the database.[/yellow]\n")
         questionary.press_any_key_to_continue().ask()
         return "BACK"
-
+    
     # 1. Display each user as a Rich Panel
     for user in users:
+        # 'user' is now a UserDetail object containing all counts and social status
         created_date = user.created_at.strftime("%Y-%m-%d") if user.created_at else "N/A"
+        
         console.print(
             Panel(
-                f"[cyan]ID:[/cyan] {user.id}\n[cyan]Username:[/cyan] {user.user_name}\n[cyan]Created At:[/cyan] {created_date}",
+                f"[cyan]ID:[/cyan] {user.id}\n"
+                f"[cyan]Username:[/cyan] {user.user_name}\n"
+                f"[cyan]Created At:[/cyan] {created_date}\n"
+                f"[cyan]Posts:[/cyan] {user.post_count}\n"
+                f"[cyan]Followed by You:[/cyan] {'Yes' if user.is_following else 'No'}\n"
+                f"[cyan]Follows You:[/cyan] {'Yes' if user.follows_you else 'No'}",
                 title=f"User: {user.user_name}",
                 subtitle=f"ID: {user.id}"
             )
