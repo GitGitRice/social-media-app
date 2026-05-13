@@ -103,9 +103,16 @@ def get_posts(offset: int = 0, limit: int = 20) -> list[PostRead]:
     except httpx.ConnectError:
         return []
     
-#def get_post(post_id: int ) -> PostDetailsRead:
-#    return None
-
+def get_post(post_id: int ) -> PostDetailsRead | None:
+    """Fetches the details of the specified Post"""
+    try:
+        response = session.client.get(f"/api/posts/{post_id}")
+        if response.status_code == 200:
+            return PostDetailsRead.model_validate(response.json())
+        return None
+    except httpx.ConnectError:
+        return None
+    
 def get_user_posts(user_id: int) -> list[PostRead]:
     """Fetches all posts of a specific user."""
     try:
