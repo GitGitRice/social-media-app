@@ -26,16 +26,19 @@ def build_post_details(session: Session, post: Post) -> PostDetailsRead:
     """
     Builds a post detail response without reading SQLModel relationships implicitly.
     """
+    comments_list = [
+        CommentRead.model_validate(comment)
+        for comment in get_comments_for_post(session, post.id)
+    ]
     return PostDetailsRead(
         content=post.content,
         author_id=post.author_id,
         id=post.id,
         created_at=post.created_at,
-        comments=[
-            CommentRead.model_validate(comment)
-            for comment in get_comments_for_post(session, post.id)
-        ],
-        likes=len(post.likes),
+        comments_count=len(comments_list),
+        likes_count=post.likes_count,
+        comments=comments_list,
+        likes=post.likes_count,
     )
 
 

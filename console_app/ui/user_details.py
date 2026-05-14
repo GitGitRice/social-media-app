@@ -1,5 +1,5 @@
 from console_app.state import session
-from console_app.client_api import follow_user, unfollow_user, get_followed_users, get_user_details
+from console_app.client_api import follow_user, unfollow_user, get_followed_users, get_user_details, get_followers
 from .utils import print_error, print_header, clear_screen, print_success, pause
 from web_app.models import UserDetailsRead
 from rich.panel import Panel
@@ -70,13 +70,25 @@ def user_details_screen(user_id: int): # Changed signature to accept user_id
     
     if action == "View Following":
         following_list = get_followed_users(user_detail.id) # Use user_detail.id
+        followers_list = get_followers(user_detail.id)
+
+        console.print("\n[bold magenta]Social Connections:[/bold magenta]")
+
+        console.print("\n[cyan]Following:[/cyan]")
         if not following_list:
-            console.print("\n[yellow]You are not following anyone yet.[/yellow]\n")
+            console.print("  [dim]You are not following anyone yet.[/dim]")
         else:
-            console.print("\n[bold magenta]Users you follow:[/bold magenta]")
             for u in following_list:
-                console.print(f"- {u.user_name}")
-            print("\n")
+                console.print(f"  - {u.user_name}")
+
+        console.print("\n[cyan]Followers:[/cyan]")
+        if not followers_list:
+            console.print("  [dim]No one is following you yet.[/dim]")
+        else:
+            for u in followers_list:
+                console.print(f"  - {u.user_name}")
+
+        print("\n")
         pause() # Pause to allow user to read the list
         return lambda: user_details_screen(user_id) # Reload current screen
 

@@ -18,6 +18,7 @@ if __name__ == "__main__":
             user: UserRead | None = get_my_user()
             if user:
                 # We create a local alias to ensure that the lambda is called with not-None active_user
+                session.user = user.model_dump() # By adding session.user = user.model_dump(), the application now remembers who is logged in even after a restart.
                 active_user: UserRead = user
                 ui_screen_stack = [main_menu_screen]
             else:
