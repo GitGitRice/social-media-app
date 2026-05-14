@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 
 from .comment_model import CommentRead
-from .like_model import Like
+from .like_model import LikeRead, Like
 
 if TYPE_CHECKING:
     from .comment_model import Comment
@@ -74,4 +74,4 @@ class PostDetailsRead(PostRead):
     A data model with nested details for a single post.
     """
     comments: list[CommentRead]
-    likes: int = 0
+    likes: list[LikeRead]

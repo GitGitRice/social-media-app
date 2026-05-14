@@ -3,13 +3,9 @@ import platform
 from enum import Enum
 
 from web_app.models import PostRead
-
 from rich.console import Console
 from rich.rule import Rule
 from rich.panel import Panel
-from rich.text import Text
-from rich.align import Align
-from rich.console import Group
 import questionary
 
 console = Console()
@@ -67,32 +63,32 @@ class Emoji(str, Enum):
     def __str__(self):
         return str(self.value)
 
-def render_post_panel(post: PostRead):
+# def render_post_panel(post: PostRead):
 
-    # prepare the content
-    content = Text(post.content)
+#     # prepare the content
+#     content = Text(post.content)
 
-    # prepare the counts footer
-    counts_string = ""
-    if post.comments_count > 0:
-        counts_string = counts_string + f"{Emoji.COMMENT} {post.comments_count}" + "    "
-    if post.likes_count > 0:
-        counts_string = counts_string + f"{Emoji.LIKE} {post.likes_count}"
-    footer = Align.right(Text(counts_string), style="dim italic")
+#     # prepare the counts footer
+#     counts_string = ""
+#     if post.comments_count > 0:
+#         counts_string = counts_string + f"{Emoji.COMMENT} {post.comments_count}" + "    "
+#     if post.likes_count > 0:
+#         counts_string = counts_string + f""
+#     footer = Align.right(Text(counts_string), style="dim italic")
     
-    # create group to manage layout
-    layout_group = Group (
-        content,
-        "",
-        footer
-    )
+#     # create group to manage layout
+#     layout_group = Group (
+#         content,
+#         "",
+#         footer
+#     )
 
-    # Wrap in a Panel
-    panel = Panel(
-        layout_group,
-        title=f"[bold blue]Post by {post.author_id}[/]",
-        border_style="bright_magenta",
-        padding=(1, 2)
-    )
+#     # Wrap in a Panel
+#     panel = Panel(
+#         layout_group,
+#         title=f"[bold blue]Post by {post.author_id}[/]",
+#         border_style="bright_magenta",
+#         padding=(1, 2)
+#     )
 
-    return panel
+#     return panel
