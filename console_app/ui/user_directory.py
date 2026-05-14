@@ -21,16 +21,31 @@ def user_directory_screen():
     for user in users:
         created_date = user.created_at.strftime("%Y-%m-%d") if user.created_at else "N/A"
         
-        # Construct a multiline display string based on the colleague's suggestion
+        # Determine status icons based on relationship direction
+        status_icon = ""
+        if user.is_following and user.follows_you:
+            status_icon = f"{Emoji.FOLLOW_LINK}{Emoji.FOLLOW_LINK}"
+        elif user.is_following:
+            status_icon = f"{Emoji.FOLLOWING}"
+        elif user.follows_you:
+            status_icon = f"{Emoji.BEING_FOLLOWED}"
+
+
+        social_line = f"Social Status: {status_icon}" if status_icon else ""
+
+        # Use questionary.Separator to create a clear visual boundary between users.
+        # We use plain text here because questionary does not render Rich markup tags.
+        choices.append(questionary.Separator("─" * 30))
+        
         display_text = (
             f"{user.user_name} (ID: {user.id})\n"
-            f"   Posts: {user.post_count} | Joined: {created_date}\n"
-            f"   Following: {'Yes' if user.is_following else 'No'} | Follows You: {Emoji.LIKE.value if user.follows_you else 'No'}"
+            f"  Posts: {user.post_count}\n"
+            f"  Joined: {created_date}\n"
+            f"  {social_line}"
         )
         choices.append(questionary.Choice(title=display_text, value=user.id))
 
     # Add navigation and structural elements
-    choices.append(questionary.Separator())
     choices.append(questionary.Choice(title="Back to Main Menu", value="HOME"))
     
     selection = questionary.select(
