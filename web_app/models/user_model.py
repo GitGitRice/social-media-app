@@ -41,6 +41,18 @@ class User(UserBase, table=True):
         sa_relationship_kwargs={"primaryjoin": "User.id==Follow.followed_id"}
     )
 
+    @property
+    def post_count(self) -> int:
+        return len(self.posts) if self.posts else 0
+
+    @property
+    def followers_count(self) -> int:
+        return len(self.followers) if self.followers else 0
+
+    @property
+    def following_count(self) -> int:
+        return len(self.following) if self.following else 0
+
 
 class UserCreate(UserBase):
     """
@@ -57,7 +69,11 @@ class UserRead(UserBase):
     id: int
     followers_count: int = 0
     following_count: int = 0
+    post_count: int = 0
     created_at: datetime
+
+    class Config:
+        from_attributes = True
 
 
 class UserPatch(SQLModel):
@@ -74,6 +90,9 @@ class UserPatch(SQLModel):
 
 
 class UserDetailsRead(UserRead):
+    """
+    Enriches UserRead with relationship status relative to the requester.
+    """
     is_following: bool = False  # TODO ask wether this part should be in UserRead or UserDetail, since it is only relevant for the user directory and user details screens, but not for the followers/following screens.
     follows_you: bool = False
     post_count: int = 0

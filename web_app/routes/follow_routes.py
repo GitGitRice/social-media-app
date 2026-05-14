@@ -5,7 +5,7 @@ from web_app.auth import get_current_user
 from web_app.database import get_session
 from web_app.email import send_follow_notification
 from web_app.models import ModelError, User, FollowRead, UserRead
-from web_app.crud import follow_user, unfollow_user, is_following, get_followed_users
+from web_app.crud import follow_user, unfollow_user, is_following, get_followed_users, get_followers_for_user
 
 
 router = APIRouter()
@@ -90,3 +90,11 @@ def read_followed_users(
 ):
     """Fetches the list of users that the specified user follows."""
     return get_followed_users(session, user_id)
+
+@router.get("/{user_id}/followers", response_model=list[UserRead])
+def read_followers(
+    user_id: int,
+    session: Session = Depends(get_session)
+):
+    """Fetches the list of users that follow the specified user."""
+    return get_followers_for_user(session, user_id)

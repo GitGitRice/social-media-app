@@ -65,13 +65,13 @@ def add_user(user: UserCreate) -> UserRead | None:
         print("Network Error: Could not connect to server.")
         return None
 
-def get_users() -> list[UserDetail]:
+def get_users() -> list[UserDetailsRead]:
     """Returns a list of UserDetail objects."""
     try:
         response = session.client.get("/api/users")
         if response.status_code == 200:
             # validate JSON response into UserRead object
-            return [UserDetail.model_validate(u) for u in response.json()]
+            return [UserDetailsRead.model_validate(u) for u in response.json()]
         return []
     except httpx.ConnectError:
         return []
@@ -209,6 +209,16 @@ def get_followed_users(user_id: int) -> list[UserRead]:
     """Fetches a list of users the target user follows."""
     try:
         response = session.client.get(f"/api/users/{user_id}/following")
+        if response.status_code == 200:
+            return [UserRead.model_validate(u) for u in response.json()]
+        return []
+    except httpx.ConnectError:
+        return []
+
+def get_followers(user_id: int) -> list[UserRead]:
+    """Fetches a list of users following the target user."""
+    try:
+        response = session.client.get(f"/api/users/{user_id}/followers")
         if response.status_code == 200:
             return [UserRead.model_validate(u) for u in response.json()]
         return []

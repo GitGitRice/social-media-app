@@ -1,8 +1,7 @@
 from console_app.client_api import get_users
-from .utils import print_header, clear_screen
+from .utils import print_header, clear_screen, Emoji
 from .user_details import user_details_screen
 from rich.console import Console
-from rich.panel import Panel
 import questionary
 
 console = Console()
@@ -17,40 +16,31 @@ def user_directory_screen():
         questionary.press_any_key_to_continue().ask()
         return "BACK"
     
-    # 1. Display each user as a Rich Panel
+    # 1. Build multiline choices for the selection menu
+    choices = []
     for user in users:
-        # 'user' is now a UserDetail object containing all counts and social status
         created_date = user.created_at.strftime("%Y-%m-%d") if user.created_at else "N/A"
         
-        console.print(
-            Panel(
-                f"[cyan]ID:[/cyan] {user.id}\n"
-                f"[cyan]Username:[/cyan] {user.user_name}\n"
-                f"[cyan]Created At:[/cyan] {created_date}\n"
-                f"[cyan]Posts:[/cyan] {user.post_count}\n"
-                f"[cyan]Followed by You:[/cyan] {'Yes' if user.is_following else 'No'}\n"
-                f"[cyan]Follows You:[/cyan] {'Yes' if user.follows_you else 'No'}",
-                title=f"User: {user.user_name}",
-                subtitle=f"ID: {user.id}"
-            )
+        # Construct a multiline display string based on the colleague's suggestion
+        display_text = (
+            f"{user.user_name} (ID: {user.id})\n"
+            f"   Posts: {user.post_count} | Joined: {created_date}\n"
+            f"   Following: {'Yes' if user.is_following else 'No'} | Follows You: {Emoji.LIKE.value if user.follows_you else 'No'}"
         )
+        choices.append(questionary.Choice(title=display_text, value=user.id))
 
-    # 2. Provide Interaction Options
-    # We create a list of names for the menu, plus a "Back" option
-    user_choices = [user.user_name for user in users]
+    # Add navigation and structural elements
+    choices.append(questionary.Separator())
+    choices.append(questionary.Choice(title="Back to Main Menu", value="HOME"))
     
     selection = questionary.select(
         "Select a user to see details or go back:",
-        choices=user_choices + [questionary.Separator(), "Back to Main Menu"],
+        choices=choices,
         qmark="",
         instruction=" "
     ).ask()
 
-    # 3. Logic handling
-    if selection == "Back to Main Menu" or selection is None:
+    if selection == "HOME" or selection is None:
         return "HOME"
     
-    # Find the specific user object that matches the selection
-    selected_user = next(u for u in users if u.user_name == selection)
-
-    return lambda : user_details_screen(selected_user.id) # Pass user_id instead of UserRead object
+    return lambda: user_details_screen(selection)

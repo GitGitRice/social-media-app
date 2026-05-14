@@ -43,12 +43,12 @@ def add_user(
     return UserRead.model_validate(result)
 
 
-@router.get("", response_model=list[UserDetail])
+@router.get("", response_model=list[UserDetailsRead])
 def get_users(
     *, 
     user: User = Depends(get_current_user), 
     session: Session = Depends(get_session)
-) -> list[UserDetail]:
+) -> list[UserDetailsRead]:
     """
     Returns a list of UserDetail objects, enriched with social data.
     """
@@ -72,7 +72,7 @@ def read_user(
     """
     db_user = get_user_by_id(user_id, session)
     if isinstance(db_user, ModelError):
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=db_user.http_status, detail=db_user.value)
     
     return enrich_user_detail(db_user, current_user.id, session)
 
@@ -89,15 +89,13 @@ def read_user_posts(
     return get_posts_by_user(session, user_id)
 
 
-def enrich_user_detail(db_user: User, current_user_id: int, session: Session) -> UserDetail:
+def enrich_user_detail(db_user: User, current_user_id: int, session: Session) -> UserDetailsRead:
     """
     Helper to populate UserDetail fields from database relationships.
+    Counts are now handled automatically by UserRead.model_validate via properties.
     """
-    user_detail = UserDetail.model_validate(db_user)
-    
-    user_detail.followers_count = len(db_user.followers)
-    user_detail.following_count = len(db_user.following)
-    user_detail.post_count = len(db_user.posts)
+    user_detail = UserDetailsRead.model_validate(db_user)
+
     user_detail.is_following = is_following(session, current_user_id, db_user.id)
     user_detail.follows_you = is_following(session, db_user.id, current_user_id)
     
