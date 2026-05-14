@@ -5,7 +5,7 @@ from sqlmodel import Session
 from web_app.database import get_session
 from web_app.auth import decode_public_post_access_token, get_current_user
 from web_app.email import send_like_notification, send_new_post_notification
-from web_app.models import UserRead, User, PostRead, PostCreate, Post, PostDetailsRead, CommentRead, ModelError
+from web_app.models import UserRead, User, PostRead, PostCreate, Post, PostDetailsRead, CommentRead, ModelError, LikeRead
 from web_app.crud import (
     create_post,
     get_posts,
@@ -26,19 +26,24 @@ def build_post_details(session: Session, post: Post) -> PostDetailsRead:
     """
     Builds a post detail response without reading SQLModel relationships implicitly.
     """
-    comments_list = [
-        CommentRead.model_validate(comment)
-        for comment in get_comments_for_post(session, post.id)
-    ]
+
+    if not post.id:
+        raise HTTPException(status_code=404, detail="Post not found")
     return PostDetailsRead(
         content=post.content,
         author_id=post.author_id,
         id=post.id,
         created_at=post.created_at,
-        comments_count=len(comments_list),
-        likes_count=post.likes_count,
-        comments=comments_list,
-        likes=post.likes_count,
+        comments=[
+            CommentRead.model_validate(comment)
+            for comment in get_comments_for_post(session, post.id)
+        ],
+        likes=[
+            LikeRead.model_validate(like)
+            for like in post.likes
+        ],
+        comments_count=post.comments_count,
+        likes_count=post.likes_count
     )
 
 
@@ -151,7 +156,7 @@ def read_post(
     Fetches a single post record by its unique ID.
     """
     post = get_post_by_id(session, post_id)
-    if not post:
+    if not post or not post.id:
         raise HTTPException(status_code=404, detail="Post not found")
 
     return build_post_details(session, post)
@@ -179,4 +184,6 @@ def read_following_feed(
     session: Session = Depends(get_session)
 ):
     """Returns a feed of posts from followed users."""
+    if not current_user.id:
+        raise HTTPException(status_code=404, detail="USER_ID_NOT_FOUND")
     return get_following_posts(session, current_user.id, offset, limit)

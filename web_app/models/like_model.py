@@ -7,12 +7,17 @@ if TYPE_CHECKING:
     from .post_model import Post
     from .user_model import User
 
-class Like(SQLModel, table=True):
+class LikeBase(SQLModel):
+    """
+    Shared fields for Like models. 
+    """
+    user_id: int = Field(foreign_key="user.id")
+    post_id: int = Field(foreign_key="post.id")
+
+class Like(LikeBase, table=True):
 
     # database columns
     id: int | None = Field(default=None, primary_key=True) 
-    user_id: int = Field(foreign_key="user.id")
-    post_id: int = Field(foreign_key="post.id")
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     # relationships
@@ -23,3 +28,8 @@ class Like(SQLModel, table=True):
     __table_args__ = (
         UniqueConstraint("user_id", "post_id", name="unique_user_post_like"),
     )
+
+class LikeRead(LikeBase):
+    """The model used for API responses."""
+    id: int
+    created_at: datetime
