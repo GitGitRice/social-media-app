@@ -86,6 +86,7 @@ def check_follow_status(
 @router.get("/{user_id}/following", response_model=list[UserRead])
 def read_followed_users(
     user_id: int,
+    current_user: User = Depends(get_current_user),
     session: Session = Depends(get_session)
 ):
     """Fetches the list of users that the specified user follows."""
@@ -94,6 +95,7 @@ def read_followed_users(
 @router.get("/{user_id}/followers", response_model=list[UserRead])
 def read_followers(
     user_id: int,
+    current_user: User = Depends(get_current_user),
     session: Session = Depends(get_session)
 ):
     """Fetches the list of users that follow the specified user."""
