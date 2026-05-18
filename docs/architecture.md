@@ -131,7 +131,7 @@ We use a `.venv` folder to keep our project's libraries separate from your syste
 
 ---
 
-## Access Token Workflow
+## Access Token Workflow: Console App to Web Server
 
 This section details how access tokens are obtained, validated, and used to authenticate requests within the system.
 
@@ -287,3 +287,81 @@ sequenceDiagram
 8.  **Login Result**: `login_user` returns `True` for success or `False` for failure to the `UI`, which then informs the user.
 
 By centralizing token management in `state.py` and utilizing `httpx`'s client capabilities, the `client_api.py` module can make authenticated requests without explicitly passing the token each time, simplifying the client-side communication logic.
+
+---
+
+## Email Notification Workflow
+
+This section details how the application sends email notifications and how users can access content through secure, temporary links provided in those emails.
+
+### 1. Email Sending and Public Token Generation
+
+When a user performs an action that triggers a notification (e.g., creating a post or liking another user's post), the server generates and sends an email in the background to avoid delaying the user's API request.
+
+```mermaid
+sequenceDiagram
+    participant Route as API Route (e.g., posts_routes)
+    participant BGTasks as FastAPI BackgroundTasks
+    participant Email as Email Module
+    participant Auth as Auth Module
+    participant SMTP as SMTP Server
+
+    Route->>BGTasks: add_task(send_notification, recipient_email, post_id, ...)
+    note right of BGTasks: The API responds to the user immediately.
+    BGTasks->>Email: Executes send_new_post_notification(...)
+    Email->>Email: build_post_link(post_id)
+    Email->>Auth: create_public_post_access_token(post_id)
+    Auth-->>Email: Returns short-lived JWT
+    Email-->>Email: Constructs full URL with token
+    Email->>Email: send_email(to, subject, body, html_body)
+    Email->>SMTP: Sends email message via SMTP
+    SMTP-->>Email: Confirms sending
+```
+
+**Explanation of Email Sending:**
+
+1.  **Background Task Trigger**: An API `Route` (e.g., for creating a post) receives a request. To avoid blocking the response, it adds a notification task to FastAPI's `BackgroundTasks` (`BGTasks`).
+2.  **Notification Logic**: After the API has sent its response to the user, `BGTasks` executes the specified function in the `Email` module (e.g., `send_new_post_notification`).
+3.  **Public Link Creation**: The `Email` module calls its internal `build_post_link` function to create a secure link to the relevant content (e.g., a post).
+4.  **Token Generation**: To secure the link, `build_post_link` requests a special, short-lived JSON Web Token from the `Auth` module via `create_public_post_access_token`. This token encodes the `post_id` and an expiration time but does not identify a specific user.
+5.  **URL Construction**: The `Email` module receives the token and constructs a full URL pointing to a static HTML page, including the token as a query parameter.
+6.  **Email Dispatch**: Finally, the `Email` module formats the email content (subject, body) and uses Python's `smtplib` to send the message via the configured external `SMTP Server`.
+
+### 2. Accessing Content via Email Link
+
+When a user clicks the link in the notification email, they are taken to a public, read-only view of the content. This flow uses the temporary token to securely fetch the data without requiring the user to log in.
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Browser as Email Client / Browser
+    participant Server as Server (Static Files)
+    participant JS as Static Page JavaScript
+    participant Route as API Route (/public)
+    participant Auth as Auth Module
+    participant CRUD as CRUD Module
+
+    User->>Browser: Clicks link in email
+    Browser->>Server: GET /static/post.html?token=...
+    Server-->>Browser: Returns static HTML/JS file
+    Browser->>JS: Executes JavaScript on page load
+    JS->>Route: GET /api/posts/public?token=...
+    Route->>Auth: decode_public_post_access_token(token)
+    Auth-->>Route: Returns post_id
+    Route->>CRUD: get_post_by_id(post_id)
+    CRUD-->>Route: Returns Post data
+    Route-->>JS: Returns PostDetailsRead JSON
+    JS->>Browser: Renders post details into HTML
+    Browser-->>User: Displays the post content
+```
+
+**Explanation of Public Link Access:**
+
+1.  **User Action**: The `User` clicks the link in their email client, which opens the URL in their `Browser`.
+2.  **Static Page Request**: The `Browser` sends a GET request to the server for the static HTML page (e.g., `/static/post.html`), passing the token in the URL.
+3.  **Serve Static Content**: The FastAPI server serves the requested static file.
+4.  **Client-Side Fetch**: Once the page loads, its `JavaScript` runs, extracts the token from the URL, and makes an AJAX request to the public API endpoint (e.g., `/api/posts/public`), again passing the token.
+5.  **Token Decoding**: The public API `Route` calls the `Auth` module to decode and validate the token. If the token is valid and not expired, the `Auth` module extracts and returns the `post_id`.
+6.  **Data Retrieval**: The `Route` uses the `post_id` to fetch the corresponding post details from the database via the `CRUD` module.
+7.  **Return Data**: The API returns the post data as a JSON object (`PostDetailsRead`).
+8.  **Render Content**: The `JavaScript` on the static page receives the JSON data and dynamically renders the post content (author, content, comments, etc.) into the HTML for the `User` to see.
