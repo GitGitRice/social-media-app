@@ -21,26 +21,14 @@ def create_comment_screen (selected_post_id: int):
 
     # collect comment
     comment = questionary.text("", multiline=True).ask()
-
+    if comment == None:
+        return "BACK"
+    
     # create comment on server
     if (create_comment(selected_post_id, comment)):
         print_success ("Comment created")
+        return "BACK"
     else:
         print_error ("Error creating comment")
-
-    # user selection menu
-    choice= questionary.select(
-        "",
-        choices=["Back", "Home"],
-        qmark="",           # Removes the "?"
-        instruction=""      # Removes the "(Use arrow keys)"
-    ).ask()
-
-    # interpret user selection
-    if choice == "Back":
         return "BACK"
-    elif choice == "Home":
-        return "HOME"
-    else:
-        print_error("Invalid choice")
-        return "BACK"
+    
