@@ -1,6 +1,7 @@
 import os
 import smtplib
 from email.message import EmailMessage
+from html import escape
 from urllib.parse import urlencode
 
 from dotenv import load_dotenv
@@ -27,7 +28,20 @@ def build_post_link(post_id: int) -> str:
     return f"{app_base_url}/static/post.html?{query}"
 
 
-def send_email(to_email: str, subject: str, body: str) -> bool:
+def build_post_link_html(post_link: str) -> str:
+    """
+    Builds a small HTML email body with a readable post link.
+    """
+    safe_link = escape(post_link, quote=True)
+    return f'<p>Open the post here: <a href="{safe_link}">Open post</a></p>'
+
+
+def send_email(
+    to_email: str,
+    subject: str,
+    body: str,
+    html_body: str | None = None,
+) -> bool:
     """
     Sends a plain text email through the configured SMTP server.
 
@@ -52,6 +66,8 @@ def send_email(to_email: str, subject: str, body: str) -> bool:
     message["To"] = to_email
     message["Subject"] = subject
     message.set_content(body)
+    if html_body:
+        message.add_alternative(html_body, subtype="html")
 
     try:
         with smtplib.SMTP(smtp_host, smtp_port) as smtp:
@@ -74,9 +90,13 @@ def send_comment_notification(to_email: str, post_id: int, commenter_name: str) 
     subject = "New comment on your post"
     body = (
         f"{commenter_name} commented on your post.\n\n"
-        f"Open the post here:\n{post_link}"
+        "Open the post with the link in this email."
     )
-    return send_email(to_email, subject, body)
+    html_body = (
+        f"<p>{escape(commenter_name)} commented on your post.</p>"
+        f"{build_post_link_html(post_link)}"
+    )
+    return send_email(to_email, subject, body, html_body)
 
 
 def send_new_post_notification(to_email: str, post_id: int, author_name: str) -> bool:
@@ -87,9 +107,13 @@ def send_new_post_notification(to_email: str, post_id: int, author_name: str) ->
     subject = f"{author_name} created a new post"
     body = (
         f"{author_name} created a new post.\n\n"
-        f"Open the post here:\n{post_link}"
+        "Open the post with the link in this email."
     )
-    return send_email(to_email, subject, body)
+    html_body = (
+        f"<p>{escape(author_name)} created a new post.</p>"
+        f"{build_post_link_html(post_link)}"
+    )
+    return send_email(to_email, subject, body, html_body)
 
 
 def send_like_notification(to_email: str, post_id: int, liker_name: str) -> bool:
@@ -100,9 +124,13 @@ def send_like_notification(to_email: str, post_id: int, liker_name: str) -> bool
     subject = "New like on your post"
     body = (
         f"{liker_name} liked your post.\n\n"
-        f"Open the post here:\n{post_link}"
+        "Open the post with the link in this email."
     )
-    return send_email(to_email, subject, body)
+    html_body = (
+        f"<p>{escape(liker_name)} liked your post.</p>"
+        f"{build_post_link_html(post_link)}"
+    )
+    return send_email(to_email, subject, body, html_body)
 
 
 def send_follow_notification(to_email: str, follower_name: str) -> bool:
