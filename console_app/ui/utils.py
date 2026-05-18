@@ -58,6 +58,10 @@ def print_step(message: str) -> None:
 class Emoji(str, Enum):
     COMMENT = "\U0001F4AC"
     LIKE = "\U0001F44D"
+    FOLLOW_LINK = "\U0001F517"
+    FOLLOWING = "\U00002B50" # Star Emoji
+    BEING_FOLLOWED = "\U0001F464" 
+
 
     # ensures that string of value is returned
     def __str__(self):

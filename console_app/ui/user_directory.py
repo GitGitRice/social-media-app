@@ -1,9 +1,7 @@
 from console_app.client_api import get_users
-from .utils import print_header, clear_screen
+from .utils import print_header, clear_screen, Emoji
 from .user_details import user_details_screen
-from rich.table import Table
 from rich.console import Console
-from rich.panel import Panel
 import questionary
 
 console = Console()
@@ -17,38 +15,47 @@ def user_directory_screen():
         console.print("\n[yellow]No Users found in the database.[/yellow]\n")
         questionary.press_any_key_to_continue().ask()
         return "BACK"
-
-    # 1. Create and Display the Rich Table
-    table = Table(title="", show_header=True, header_style="bold magenta")
-    table.add_column("ID", style="dim")
-    table.add_column("Username", style="cyan")
-    table.add_column("Created At", justify="right")
-
+    
+    # 1. Build multiline choices for the selection menu
+    choices = []
     for user in users:
-        table.add_row(
-            str(user.id), 
-            user.user_name, 
-            user.created_at.strftime("%Y-%m-%d") if user.created_at else "N/A"
+        created_date = user.created_at.strftime("%Y-%m-%d") if user.created_at else "N/A"
+        
+        # Determine status icons based on relationship direction
+        status_icon = ""
+        if user.is_following and user.follows_you:
+            status_icon = f"{Emoji.FOLLOW_LINK}{Emoji.FOLLOW_LINK}"
+        elif user.is_following:
+            status_icon = f"{Emoji.FOLLOWING}"
+        elif user.follows_you:
+            status_icon = f"{Emoji.BEING_FOLLOWED}"
+
+
+        social_line = f"Social Status: {status_icon}" if status_icon else ""
+
+        # Use questionary.Separator to create a clear visual boundary between users.
+        # We use plain text here because questionary does not render Rich markup tags.
+        choices.append(questionary.Separator("─" * 30))
+        
+        display_text = (
+            f"{user.user_name} (ID: {user.id})\n"
+            f"  Posts: {user.post_count}\n"
+            f"  Joined: {created_date}\n"
+            f"  {social_line}"
         )
+        choices.append(questionary.Choice(title=display_text, value=user.id))
 
-    console.print(table)
-
-    # 2. Provide Interaction Options
-    # We create a list of names for the menu, plus a "Back" option
-    user_choices = [user.user_name for user in users]
+    # Add navigation and structural elements
+    choices.append(questionary.Choice(title="Back to Main Menu", value="HOME"))
     
     selection = questionary.select(
         "Select a user to see details or go back:",
-        choices=user_choices + [questionary.Separator(), "Back to Main Menu"],
+        choices=choices,
         qmark="",
         instruction=" "
     ).ask()
 
-    # 3. Logic handling
-    if selection == "Back to Main Menu" or selection is None:
-        return "BACK"
+    if selection == "HOME" or selection is None:
+        return "HOME"
     
-    # Find the specific user object that matches the selection
-    selected_user = next(u for u in users if u.user_name == selection)
-
-    return lambda : user_details_screen(selected_user.id) # Pass user_id instead of UserRead object
+    return lambda: user_details_screen(selection)
