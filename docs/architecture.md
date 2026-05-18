@@ -18,6 +18,10 @@ graph TD
         CAPI["Client API<br/>Network Communication"]
     end
 
+    subgraph "External Consumers"
+        EmailClient["Email Client / Browser"]
+    end
+
     subgraph "The 'Brain' (Shared Knowledge)"
         Models["Pydantic/SQLModel<br/>Data Blueprints"]
     end
@@ -25,28 +29,42 @@ graph TD
     subgraph "Server Side (Web App)"
         Main["Main<br/>FastAPI Entry Point"]
         Routes["Routes<br/>API Endpoints"]
-        Auth["Auth<br/>Security &amp; JWT"]
-        CRUD["CRUD<br/>Database Operations"]
-        DB["Database<br/>Engine &amp; Session"]
-        SQLite[["SQLite<br/>database.db"]]
+        Auth["Auth<br/>Security &amp; JWT"];
+        CRUD["CRUD<br/>Database Operations"];
+        DB["Database<br/>Engine &amp; Session"];
+        SQLite[["SQLite<br/>database.db"]];
+        Email["Email Module<br/>Notification Logic"];
+        Static["Static Files<br/>Public HTML/JS"];
+        BGTasks["Background Tasks"];
+    end
+
+    subgraph "External Services"
+        SMTP[("SMTP Server")]
     end
 
     %% Interactions
-    UI -->|1. Collects Input| CAPI
-    CAPI -->|2. HTTP Request| Main
-    Main -->|3. Forwards to| Routes
-    Routes -->|4. Authenticates via| Auth
-    Auth -->|5. Validates User via| CRUD
-    Routes -->|6. Executes| CRUD
-    CRUD -->|7. Queries| DB
-    DB -->|8. Reads/Writes| SQLite
-    
+    UI -->|1. Collects Input| CAPI;
+    CAPI -->|2. HTTP Request| Main;
+    Main -->|3. Forwards to| Routes;
+    Routes -->|4. Authenticates via| Auth;
+    Auth -->|5. Validates User via| CRUD;
+    Routes -->|6. Executes| CRUD;
+    CRUD -->|7. Queries| DB;
+    DB -->|8. Reads/Writes| SQLite;
+
+    %% Email Notification Flow
+    Routes -->|9. Triggers| BGTasks;
+    BGTasks -->|10. Calls| Email;
+    Email -->|11. Sends via| SMTP;
+    EmailClient -->|12. Views Link| Static;
+    Static -->|13. Fetches Data via| Routes;
+
     %% Shared Models
-    UI -.->|Uses| Models
-    CAPI -.->|Uses| Models
-    Routes -.->|Uses| Models
-    Auth -.->|Uses| Models
-    CRUD -.->|Uses| Models
+    UI -.->|Uses| Models;
+    CAPI -.->|Uses| Models;
+    Routes -.->|Uses| Models;
+    Auth -.->|Uses| Models;
+    CRUD -.->|Uses| Models;
 ```
 
 **Control Flow Description:**
