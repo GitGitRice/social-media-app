@@ -35,7 +35,7 @@ def main_menu_screen():
             return user_directory_screen
         case "Logout":  
             session.logout()
-            return "EXIT"
+            return "LOGOUT"
         case "Exit":
             return "EXIT"
         case _:
