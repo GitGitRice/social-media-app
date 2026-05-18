@@ -77,6 +77,11 @@ graph TD
 6.  **CRUD Operation**: After authentication, the `Routes` module calls `CRUD` to execute the requested logic.
 7.  **Database Query**: The `CRUD` module performs queries using the `Database` engine and session.
 8.  **Data Operations**: The `Database` layer interacts with the `SQLite` file to read or write data.
+9.  **Background Task Trigger**: For non-blocking operations like sending notifications, `Routes` adds a task to `BGTasks` (FastAPI's BackgroundTasks).
+10. **Email Logic Execution**: The background task calls the `Email` module, which contains the logic for formatting and preparing the notification.
+11. **Email Dispatch**: The `Email` module connects to an external `SMTP Server` to send the email to the user.
+12. **Static Content Access**: The user's `Email Client` or browser follows a link from the email, which leads to a static page (e.g., an HTML file) served by the `Static Files` module.
+13. **Public Data Fetching**: The static page's JavaScript makes a request to a public, token-protected API endpoint under `Routes` to securely fetch the specific content (e.g., a post) mentioned in the email.
 
 **Shared Models**: The `Pydantic/SQLModel` module provides data blueprints used by both Client and Server to ensure consistent data structures and automated serialization/deserialization.
 
