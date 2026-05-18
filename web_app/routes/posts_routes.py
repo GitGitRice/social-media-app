@@ -13,6 +13,7 @@ from web_app.crud import (
     get_posts_by_user,
     delete_post_from_db,
     get_following_posts,
+    get_comment_count,
     get_comments_for_post,
     get_followers_for_user,
     get_post_author,
@@ -29,6 +30,7 @@ def build_post_details(session: Session, post: Post) -> PostDetailsRead:
 
     if not post.id:
         raise HTTPException(status_code=404, detail="Post not found")
+    comment_count = get_comment_count(session, post.id)
     return PostDetailsRead(
         content=post.content,
         author_id=post.author_id,
@@ -42,8 +44,9 @@ def build_post_details(session: Session, post: Post) -> PostDetailsRead:
             LikeRead.model_validate(like)
             for like in post.likes
         ],
-        comments_count=post.comments_count,
-        likes_count=post.likes_count
+        comments_count=comment_count,
+        likes_count=post.likes_count,
+        comment_count=comment_count,
     )
 
 

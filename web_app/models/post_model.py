@@ -75,3 +75,4 @@ class PostDetailsRead(PostRead):
     """
     comments: list[CommentRead]
     likes: list[LikeRead]
+    comment_count: int = 0

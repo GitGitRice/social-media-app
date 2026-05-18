@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from sqlmodel import Session
 
 from web_app.auth import get_current_user
 from web_app.database import get_session
+from web_app.email import send_follow_notification
 from web_app.models import ModelError, User, FollowRead, UserRead
 from web_app.crud import follow_user, unfollow_user, is_following, get_followed_users, get_followers_for_user
 
@@ -12,6 +13,7 @@ router = APIRouter()
 @router.post("/{user_id}/follow", response_model=FollowRead)
 def create_follow(
     user_id: int,
+    background_tasks: BackgroundTasks,
     current_user: User = Depends(get_current_user),
     session: Session = Depends(get_session)
 ):
@@ -30,6 +32,14 @@ def create_follow(
     if isinstance(result, ModelError):
         # Use .value to provide the consistent error string (e.g., "ALREADY_FOLLOWING")
         raise HTTPException(status_code=result.http_status, detail=result.value)
+
+    followed_user = session.get(User, user_id)
+    if followed_user:
+        background_tasks.add_task(
+            send_follow_notification,
+            followed_user.email,
+            current_user.user_name,
+        )
 
     return result
 
