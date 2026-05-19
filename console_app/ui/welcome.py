@@ -18,6 +18,7 @@ def welcome_screen():
     elif answer == "Login":
         return login_screen
     elif answer == "Exit":
+        clear_screen()
         return "EXIT"
     else:
         print_error ("Error in Menu Selection. Exiting App.")

@@ -17,7 +17,7 @@ This application consists of two main parts:
 - **User Management**: Register, Login, and manage your profile.
 - **Social Interaction**: Follow other users, see their posts, and engage.
 - **Content Creation**: Create posts, leave comments, and like what you see!
-- **Notifications**: Stay updated with email notifications for new followers and interactions.
+- **Email Notifications**: Stay updated with email notifications for new followers, comments, and likes. Emails contain secure, temporary links to view content directly in a browser without needing to log in.
 
 ---
 
@@ -29,6 +29,8 @@ This application consists of two main parts:
 - **SQLite**: A lightweight, file-based database—perfect for getting started without setting up a heavy server.
 - **Rich & Questionary**: Used in the Console Client to make the terminal look beautiful and interactive.
 - **Requests**: To send HTTP requests from Console Client to Server.
+- **aiofiles**: Enables asynchronous file serving for static pages, improving performance.
+- **Jinja2**: A templating engine installed as part of `fastapi[standard]`, used for rendering HTML.
 
 ---
 
@@ -52,6 +54,16 @@ cp .env.example .env
 
 Open the newly created `.env` file and update the values as needed. For example, you might configure your `SERVER_URL` for the console app to connect to a remote server.
 
+To enable email notifications, you must also configure the `SMTP_*` variables and set `EMAIL_NOTIFICATIONS_ENABLED=true`.
+
+```env
+# Example for using Gmail's SMTP server
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USERNAME=your-email@gmail.com
+SMTP_PASSWORD=your-app-password
+SMTP_FROM=your-email@gmail.com
+```
 ---
 
 ### 2. The Quick Start (Recommended)
@@ -99,6 +111,7 @@ If you want to understand how things work under the hood:
     pip install "fastapi[standard]"
     pip install questionary
     pip install rich
+    pip install aiofiles
     pip install bcrypt
     pip install "python-jose[cryptography]"
     pip install python-dotenv
@@ -120,6 +133,7 @@ If you want to understand how things work under the hood:
 
 - `web_app/`: The heart of the backend. Contains models, database logic, and API endpoints.
 - `console_app/`: The terminal-based user interface.
+- `web_app/static/`: Contains static HTML/JS files for the public-facing, read-only views linked from emails.
 - `docs/`: Technical documentation ([Architecture](docs/architecture.md), [Project Plan](docs/project_plan.md)).
 
 ---
