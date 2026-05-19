@@ -33,7 +33,7 @@ def print_header(title: str, subtitle: str | None = "Social Media App") -> None:
         )
     )
 
-def pause(message: str="Press any key to return to menu...") -> None:
+def pause(message: str="Press any key") -> None:
     """Shows the provided message to the user, who can continue by pressing any key"""
     questionary.press_any_key_to_continue(
         message=message
