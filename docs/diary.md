@@ -41,4 +41,4 @@
   - Tested comment creation and retrieval locally
 
 ### Wed May 20th
-- Presentation Preparation (Daniel)
+- Presentation Preparation (all)
