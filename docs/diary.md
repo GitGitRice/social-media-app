@@ -39,3 +39,6 @@
   - Added comment model, CRUD functions and API endpoint
   - Updated post details to include nested comments
   - Tested comment creation and retrieval locally
+
+### Wed May 20th
+- Presentation Preparation (Daniel)
