@@ -42,3 +42,4 @@
 
 ### Wed May 20th
 - Presentation Preparation (all)
+- database reset (Dominik)
