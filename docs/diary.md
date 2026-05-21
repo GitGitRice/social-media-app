@@ -43,3 +43,6 @@
 ### Wed May 20th
 - Presentation Preparation (all)
 - database reset (Dominik)
+
+### Thu May 21st
+- Discussing presentation in team (All)
