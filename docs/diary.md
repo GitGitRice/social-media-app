@@ -46,3 +46,4 @@
 
 ### Thu May 21st
 - Discussing presentation in team (All)
+- Preparing Final Presentation (All)
